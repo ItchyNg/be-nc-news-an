@@ -5,8 +5,9 @@ exports.up = function(knex) {
     topicsTable
       .string("slug")
       .unique()
-      .primary(); //creating the column names here, slug should be unique enough to act as the primary key
-    topicsTable.string("description"); //creating the column names here
+      .primary()
+      .notNullable(); //creating the column names here, slug should be unique enough to act as the primary key
+    topicsTable.string("description").notNullable(); //creating the column names here
   });
 };
 
