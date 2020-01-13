@@ -150,4 +150,33 @@ describe("makeRefObj", () => {
   });
 });
 
-describe.only("formatComments", () => {});
+describe.only("formatComments", () => {
+  it("returns an empty array when given an empty array", () => {
+    expect(formatComments([])).to.deep.equal([]);
+  });
+
+  it("returns a new array of formatted comments when passed a array with a single comment object and reference object", () => {
+    const comments = [
+      {
+        body: "body in here",
+        belongs_to: "Titletest", //to be renamed to an article_id key with values to be the article_id integer
+        created_by: "itch", //to be renamed to an author key
+        votes: 10,
+        created_at: 1496231984183 //convert this to JS date object
+      }
+    ];
+    const articleRef = { Titletest: 1 }; //Key (Title), Value (article_id)
+
+    const expected = [
+      {
+        body: "body in here",
+        article_id: 1, //renamed to an article_id key with values to be the article_id integer
+        author: "itch", //renamed to an author key
+        votes: 10,
+        created_at: new Date(1496231984183) //converted this to JS date object
+      }
+    ];
+
+    expect(formatComments(comments, articleRef)).to.deep.equal(expected);
+  });
+});

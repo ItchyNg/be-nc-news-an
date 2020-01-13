@@ -5,7 +5,7 @@ exports.formatDates = list => {
   return list.map(({ ...changeDate }) => {
     changeDate.created_at = new Date(changeDate.created_at);
     return changeDate;
-  });
+  }); //need to also include something so it returns when create_at column is not found!!!!!!!!!!!><><><><><<<<<<<<<<<<<
 };
 
 exports.makeRefObj = (list, objKey, objValue) => {
@@ -21,7 +21,15 @@ exports.makeRefObj = (list, objKey, objValue) => {
 };
 
 exports.formatComments = (comments, articleRef) => {
-  return "utils";
+  // This utility function should be able to take an array of comment objects (comments) and a reference object, and return a new array of formatted comments.
+  // Each formatted comment must have:
+  // *Its created_by property renamed to an author key
+  // *Its belongs_to property renamed to an article_id key
+  // *The value of the new article_id key must be the id corresponding to the original title value provided
+  // *Its created_at value converted into a javascript date object
+  // *The rest of the comment's properties must be maintained
+
+  return [];
 };
 
 // Seeding
