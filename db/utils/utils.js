@@ -2,14 +2,22 @@ exports.formatDates = list => {
   //This utility function should be able to take an array (list) of objects and return a new array. Each item in the new array must have its timestamp converted into a Javascript date object. Everything else in each item must be maintained.
   //hint: Think carefully about how you can test that this has worked - it's not by copying and pasting a sql timestamp from the terminal into your test
 
-  return list.map(({ ...date }) => {
-    date.created_at = new Date(date.created_at);
-    return date;
+  return list.map(({ ...changeDate }) => {
+    changeDate.created_at = new Date(changeDate.created_at);
+    return changeDate;
   });
 };
 
-exports.makeRefObj = list => {
-  return "in the";
+exports.makeRefObj = (list, objKey, objValue) => {
+  //   This utility function should be able to take an array (list) of objects and return a reference object. The reference object must be keyed by each item's title, with the values being each item's corresponding id. e.g.
+  // [{ article_id: 1, title: 'A' }]
+  // will become
+  // { A: 1 }
+
+  return list.reduce(function(obj, details) {
+    obj[`${details[objKey]}`] = details[objValue];
+    return obj;
+  }, {});
 };
 
 exports.formatComments = (comments, articleRef) => {

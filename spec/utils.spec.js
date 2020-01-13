@@ -88,6 +88,66 @@ describe("formatDates", () => {
   });
 });
 
-describe("makeRefObj", () => {});
+describe("makeRefObj", () => {
+  it("returns an empty object when given an empty array", () => {
+    expect(makeRefObj([])).to.deep.equal({});
+  });
+  it("returns a reference object of keys (title) and values (article_id) pair when given one article", () => {
+    const list = [{ article_id: 1, title: "A" }];
+    const objKey = "title";
+    const objValue = "article_id";
+    const expectedResult = { A: 1 };
 
-describe("formatComments", () => {});
+    expect(makeRefObj(list, objKey, objValue)).to.deep.equal(expectedResult);
+  });
+
+  it("returns a reference object of keys (title) and values (article_id) pair when given one article, but with other redundant information", () => {
+    const list = [
+      { article_id: 1, title: "A", topic: "mitch", author: "icellusedkars" }
+    ];
+    const objKey = "title";
+    const objValue = "article_id";
+    const expectedResult = { A: 1 };
+
+    expect(makeRefObj(list, objKey, objValue)).to.deep.equal(expectedResult);
+  });
+  it("returns a reference object of keys (title) and values (article_id) pair when given an array of multiple articles.", () => {
+    const list = [
+      { article_id: 1, title: "A", topic: "bob", author: "test" },
+      { article_id: 2, title: "B", topic: "mitch", author: "icellusedkars" },
+      { article_id: 3, title: "C", topic: "Andrew", author: "bleh" }
+    ];
+    const objKey = "title";
+    const objValue = "article_id";
+    const expectedResult = { A: 1, B: 2, C: 3 };
+
+    expect(makeRefObj(list, objKey, objValue)).to.deep.equal(expectedResult);
+  });
+
+  it("testing to make sure that the function does not mutate the original data", () => {
+    const list = [{ article_id: 1, title: "A" }];
+    const listCopy = [{ article_id: 1, title: "A" }];
+    const objKey = "title";
+    const objValue = "article_id";
+    makeRefObj(list, objKey, objValue);
+
+    expect(list).to.deep.equal(listCopy);
+
+    const list2 = [
+      { article_id: 1, title: "A", topic: "bob", author: "test" },
+      { article_id: 2, title: "B", topic: "mitch", author: "icellusedkars" },
+      { article_id: 3, title: "C", topic: "Andrew", author: "bleh" }
+    ];
+    const listCopy2 = [
+      { article_id: 1, title: "A", topic: "bob", author: "test" },
+      { article_id: 2, title: "B", topic: "mitch", author: "icellusedkars" },
+      { article_id: 3, title: "C", topic: "Andrew", author: "bleh" }
+    ];
+
+    makeRefObj(list2, objKey, objValue);
+
+    expect(list2).to.deep.equal(listCopy2);
+  });
+});
+
+describe.only("formatComments", () => {});
