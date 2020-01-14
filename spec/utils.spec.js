@@ -182,4 +182,113 @@ describe.only("formatComments", () => {
 
     expect(formatComments(comments, articleRef)).to.deep.equal(expected);
   });
+
+  it("returns a new array of formatted comments when passed a array with a multiple comment objects and reference objects", () => {
+    const comments = [
+      {
+        body: "body in here",
+        belongs_to: "Titletest",
+        created_by: "itch",
+        votes: 10,
+        created_at: 1496231984183
+      },
+      {
+        body: "body in here Two",
+        belongs_to: "TitletestTwo",
+        created_by: "Andy",
+        votes: 5,
+        created_at: 1502057011385
+      }
+    ];
+    const articleRef = { TitletestTwo: 2, Titletest: 1 };
+
+    const expected = [
+      {
+        body: "body in here",
+        article_id: 1,
+        author: "itch",
+        votes: 10,
+        created_at: new Date(1496231984183)
+      },
+      {
+        body: "body in here Two",
+        article_id: 2,
+        author: "Andy",
+        votes: 5,
+        created_at: new Date(1502057011385)
+      }
+    ];
+
+    expect(formatComments(comments, articleRef)).to.deep.equal(expected);
+  });
+  it("this checks for mutations in both comments and the reference object", () => {
+    const comments = [
+      {
+        body: "body in here",
+        belongs_to: "Titletest",
+        created_by: "itch",
+        votes: 10,
+        created_at: 1496231984183
+      }
+    ];
+    const articleRef = { Titletest: 1 };
+
+    const commentsCopy = [
+      {
+        body: "body in here",
+        belongs_to: "Titletest",
+        created_by: "itch",
+        votes: 10,
+        created_at: 1496231984183
+      }
+    ];
+
+    const articleRefCopy = { Titletest: 1 };
+
+    formatComments(comments, articleRef);
+
+    expect(comments).to.deep.equal(commentsCopy);
+    expect(articleRef).to.deep.equal(articleRefCopy);
+
+    const comments2 = [
+      {
+        body: "body in here",
+        belongs_to: "Titletest",
+        created_by: "itch",
+        votes: 10,
+        created_at: 1496231984183
+      },
+      {
+        body: "body in here Two",
+        belongs_to: "TitletestTwo",
+        created_by: "Andy",
+        votes: 5,
+        created_at: 1502057011385
+      }
+    ];
+    const articleRef2 = { Titletest: 1, TitletestTwo: 2 };
+    ///////////////////////////////////////////////////////////////////
+    const commentsCopy2 = [
+      {
+        body: "body in here",
+        belongs_to: "Titletest",
+        created_by: "itch",
+        votes: 10,
+        created_at: 1496231984183
+      },
+      {
+        body: "body in here Two",
+        belongs_to: "TitletestTwo",
+        created_by: "Andy",
+        votes: 5,
+        created_at: 1502057011385
+      }
+    ];
+    const articleRefCopy2 = { Titletest: 1, TitletestTwo: 2 };
+
+    formatComments(comments2, articleRef2);
+
+    expect(comments2).to.deep.equal(commentsCopy2);
+    expect(articleRef2).to.deep.equal(articleRefCopy2);
+  });
 });

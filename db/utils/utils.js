@@ -34,6 +34,7 @@ exports.formatComments = (comments, articleRef) => {
   return !comments
     ? []
     : comments.map(function({ ...obj }) {
+        // try to use refObj?
         for (let keys in articleRef) {
           //renamed article_id and puts in the value
           if (obj.belongs_to === keys) {
