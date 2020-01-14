@@ -9,6 +9,8 @@ exports.formatDates = list => {
 };
 
 exports.makeRefObj = (list, objKey, objValue) => {
+  //should it just be list?
+
   //   This utility function should be able to take an array (list) of objects and return a reference object. The reference object must be keyed by each item's title, with the values being each item's corresponding id. e.g.
   // [{ article_id: 1, title: 'A' }]
   // will become
@@ -29,7 +31,23 @@ exports.formatComments = (comments, articleRef) => {
   // *Its created_at value converted into a javascript date object
   // *The rest of the comment's properties must be maintained
 
-  return [];
+  return !comments
+    ? []
+    : comments.map(function({ ...obj }) {
+        for (let keys in articleRef) {
+          //renamed article_id and puts in the value
+          if (obj.belongs_to === keys) {
+            obj.article_id = articleRef[keys];
+            delete obj.belongs_to;
+          }
+        } //end of for...in loop
+
+        obj.author = obj.created_by; //changes the author key
+        delete obj.created_by;
+
+        obj.created_at = new Date(obj.created_at); //converts the timestamp
+        return obj;
+      });
 };
 
 // Seeding

@@ -151,8 +151,11 @@ describe("makeRefObj", () => {
 });
 
 describe.only("formatComments", () => {
-  it("returns an empty array when given an empty array", () => {
-    expect(formatComments([])).to.deep.equal([]);
+  it("returns an empty array when given an empty array of comments", () => {
+    const comments = [];
+    const articleRef = { A: 1 };
+
+    expect(formatComments(comments, articleRef)).to.deep.equal([]);
   });
 
   it("returns a new array of formatted comments when passed a array with a single comment object and reference object", () => {
