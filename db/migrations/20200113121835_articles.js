@@ -14,7 +14,7 @@ exports.up = function(knex) {
       .string("author")
       .references("users.username")
       .notNullable(); //to reference the user's primary key (username)
-    articlesTable.string("body");
+    articlesTable.text("body");
     articlesTable
       .timestamp("created_at")
       .defaultTo(knex.fn.now())
