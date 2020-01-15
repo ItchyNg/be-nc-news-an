@@ -18,13 +18,14 @@ describe("/api", () => {
   });
   describe("/topics", () => {
     it("GET /: will respond with status 200", () => {
-      return request(app)
+      return request(app) // remove this
         .get("/api/topics")
         .expect(200);
     });
     it("GET /: will return an array of objects with the required keys (description, slug)", () => {
       return request(app)
         .get("/api/topics")
+        .expect(200)
         .then(result => {
           expect(result.body.topics).to.be.an("array");
           expect(result.body.topics[0]).to.be.an("object");
@@ -109,22 +110,58 @@ describe("/api", () => {
           });
       });
     });
-    describe.only("/PATCH", () => {
-      it("PATCH /articles/:articles_id will return status 200 when successful", () => {
-        let newVote = 1;
+    describe("/PATCH", () => {
+      // NEEED TO DO ERROR HANDLING!!!!
+      it("PATCH 200 >> /articles/:articles_id >> will return status 200 and the article requested with an increased vote count", () => {
+        let newVote = 18;
 
         return request(app)
-          .patch("/api/articles/1")
+          .patch("/api/articles/2")
           .send({ inc_votes: newVote })
-          .expect(200);
+          .expect(200)
+          .then(result => {
+            expect(result.body.article.votes).to.equal(18);
+          });
       });
-      it("PATCH /articles/:articles_id will return the article request with the amended vote count", () => {
-        let newVote = 1;
+      it("PATCH 200 >> /articles/:articles_id >> will return status 200 and the article requested with a decreased vote count", () => {
+        let newVote = -10;
 
         return request(app)
           .patch("/api/articles/1")
           .send({ inc_votes: newVote })
-          .expect(200);
+          .then(result => {
+            expect(result.body.article.votes).to.equal(90);
+          });
+      });
+      it("PATCH 200 >> /articles/:articles_id >> should be return in the correct format and include the appropriate key columns", () => {
+        let newVote = 10;
+        return request(app)
+          .patch("/api/articles/2")
+          .send({ inc_votes: newVote })
+          .then(result => {
+            expect(result.body.article).to.be.an("object");
+            expect(result.body.article).to.have.keys(
+              "author",
+              "title",
+              "article_id",
+              "body",
+              "topic",
+              "created_at",
+              "votes",
+              "comment_count"
+            );
+          });
+      });
+    });
+    describe.only("/POST", () => {
+      it("POST 200 >> /articles/:articles_id/comments >> should return status 200 when successful", () => {
+        return request(app)
+          .post("/api/articles/4/comments")
+          .expect(200)
+          .send({ username: "x", body: "I give this 10 out of 10!" })
+          .then(result => {
+            expect(result.body.article).to.be.an("object");
+          });
       });
     });
   });

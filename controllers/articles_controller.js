@@ -1,6 +1,7 @@
 const {
   selectArticleById,
-  changeArticleVotes
+  changeArticleVotes,
+  submittedCommentById
 } = require("../models/articles_model");
 
 exports.getArticleById = (req, res, next) => {
@@ -16,9 +17,22 @@ exports.getArticleById = (req, res, next) => {
 
 exports.patchArticleVotesById = (req, res, next) => {
   const { article_id } = req.params;
-  console.log(req.body, "<<<<<<");
+  const patchVote = req.body.inc_votes;
 
-  changeArticleVotes(article_id)
+  changeArticleVotes(article_id, patchVote)
+    .then(result => {
+      res.status(200).send({ article: result });
+    })
+    .catch(function(err) {
+      next(err);
+    });
+};
+
+exports.postCommentById = (req, res, next) => {
+  const { article_id } = req.params;
+  const usernameAndComment = req.body;
+  console.log(article_id, usernameAndComment, "in controller!!!!");
+  submittedCommentById(article_id)
     .then(result => {
       res.status(200).send({ article: result });
     })
