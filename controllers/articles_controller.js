@@ -31,10 +31,9 @@ exports.patchArticleVotesById = (req, res, next) => {
 exports.postCommentById = (req, res, next) => {
   const { article_id } = req.params;
   const usernameAndComment = req.body;
-  console.log(article_id, usernameAndComment, "in controller!!!!");
-  submittedCommentById(article_id)
+  submittedCommentById(article_id, usernameAndComment)
     .then(result => {
-      res.status(200).send({ article: result });
+      res.status(200).send({ newComment: result });
     })
     .catch(function(err) {
       next(err);

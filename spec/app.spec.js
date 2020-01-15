@@ -153,14 +153,18 @@ describe("/api", () => {
           });
       });
     });
-    describe.only("/POST", () => {
-      it("POST 200 >> /articles/:articles_id/comments >> should return status 200 when successful", () => {
+    describe("/POST", () => {
+      it("POST 200 >> /articles/:articles_id/comments >> should return status 200 when successful and return the comment body", () => {
+        const objComment = { username: "x", body: "I give this 10 out of 10!" };
         return request(app)
           .post("/api/articles/4/comments")
           .expect(200)
-          .send({ username: "x", body: "I give this 10 out of 10!" })
+          .send(objComment)
           .then(result => {
-            expect(result.body.article).to.be.an("object");
+            expect(result.body).to.be.an("object");
+            expect(result.body.newComment).to.be.a("string");
+            expect(result.body.newComment).to.equal(objComment.body);
+            //how would you test the comment has been posted or the articles comment count has been updated???
           });
       });
     });
