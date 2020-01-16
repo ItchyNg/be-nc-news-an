@@ -1,5 +1,15 @@
 const connection = require("../db/connection");
 
+// const article = article_id => {
+//   return connection
+//     .select("*")
+//     .from("articles")
+//     .where("article_id", article_id)
+//     .then(result => {
+//       return result;
+//     });
+// };
+
 const selectArticleById = article_id => {
   return connection
     .select("articles.*")
@@ -40,12 +50,36 @@ const submittedCommentById = (article_id, usernameAndComment) => {
     body: usernameAndComment.body
   };
 
-  return connection("comments")
-    .insert(newComment)
-    .returning("*")
+  if (!newComment.author || !newComment.body) {
+    return Promise.reject({ status: 500, msg: "Incorrect column format" });
+  }
+
+  return connection
+    .select("*")
+    .from("articles")
+    .where("article_id", article_id)
+    .then(articlerows => {
+      if (articlerows.length) {
+        return connection("comments")
+          .insert(newComment)
+          .returning("*");
+      } else {
+        return Promise.reject({
+          status: 404,
+          msg: "Article Does Not Exist"
+        });
+      }
+    })
     .then(result => {
       return result[0];
     });
+  //   return connection("comments")
+  //     .insert(newComment)
+  //     .returning("*")
+  //     .then(result => {
+  //       // console.log(result, "results in here!!!!<!<!!<");
+  //       return result[0];
+  //     });
 };
 
 const selectCommentById = (order, article_id, sort_by) => {
@@ -57,7 +91,7 @@ const selectCommentById = (order, article_id, sort_by) => {
     .then(result => {
       if (result.length === 0) {
         return Promise.reject({ status: 404, msg: "Article not found" });
-      }
+      } //but maybe there is no comments but that article exist so it should return an empty array and not error
       if (order) {
         if (order !== "desc" && order !== "asc") {
           return Promise.reject({ status: 400, msg: "Bad Request" });
@@ -67,9 +101,34 @@ const selectCommentById = (order, article_id, sort_by) => {
     });
 };
 
+const fetchAllArticles = (author, topic, order, sort_by) => {
+  return (
+    connection
+      .select(
+        "articles.title",
+        "articles.author",
+        "articles.article_id",
+        "articles.topic",
+        "articles.created_at",
+        "articles.votes"
+      )
+      .from("articles")
+      //.where("articles.article_id", article_id)
+      .count({ comment_count: "comment_id" })
+      .leftJoin("comments", "articles.article_id", "comments.article_id")
+      .groupBy("articles.article_id")
+      .then(result => {
+        //if you are patching would you want to mutate the db??????
+        result[0].comment_count = +result[0].comment_count;
+        return result;
+      })
+  );
+};
+
 module.exports = {
   selectArticleById,
   changeArticleVotes,
   submittedCommentById,
-  selectCommentById
+  selectCommentById,
+  fetchAllArticles
 };

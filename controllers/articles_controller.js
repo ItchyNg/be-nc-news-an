@@ -2,7 +2,8 @@ const {
   selectArticleById,
   changeArticleVotes,
   submittedCommentById,
-  selectCommentById
+  selectCommentById,
+  fetchAllArticles
 } = require("../models/articles_model");
 
 exports.getArticleById = (req, res, next) => {
@@ -37,6 +38,7 @@ exports.postCommentById = (req, res, next) => {
       res.status(200).send({ newComment: result });
     })
     .catch(function(err) {
+      console.log(err, "in the controller catch");
       next(err);
     });
 };
@@ -61,7 +63,20 @@ exports.getCommentById = (req, res, next) => {
       res.status(200).send({ comments: result });
     })
     .catch(function(err) {
-      // console.log(err, "in the controller catch");
+      next(err);
+    });
+};
+
+exports.getAllArticles = (req, res, next) => {
+  const author = req.query.author;
+  const topic = req.query.topic;
+  const order = req.query.order;
+  const sort_by = req.query.sort_by;
+  fetchAllArticles((author, topic, order, sort_by))
+    .then(result => {
+      res.status(200).send({ articles: result });
+    })
+    .catch(function(err) {
       next(err);
     });
 };

@@ -7,7 +7,7 @@ app.use(express.json());
 app.use("/api", apiRouter);
 
 app.all("/*", (req, res, next) =>
-  next({ status: 404, msg: "Route not found" })
+  next({ status: 404, msg: "Route Not Found" })
 ); // Errors for all other routes not stated above
 
 app.use((err, req, res, next) => {

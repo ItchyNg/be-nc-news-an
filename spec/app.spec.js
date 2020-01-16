@@ -12,21 +12,16 @@ describe("/api", function() {
   this.timeout(15000);
   beforeEach(() => connection.seed.run());
   after(() => connection.destroy());
-  // it("404: Invalid route, we are testing for routes that are not valid", () => {
-  //   return request(app)
-  //     .get("/api/invalidRoute")
-  //     .expect(404)
-  //     .then(errorResult => {
-  //       expect(errorResult.body.msg).to.equal("Route not found");
-  //     });
-  // });
+  it("404: Invalid route, we are testing for routes that are not valid", () => {
+    return request(app)
+      .get("/api/invalidRoute")
+      .expect(404)
+      .then(errorResult => {
+        expect(errorResult.body.msg).to.equal("Route Not Found");
+      });
+  });
   describe("/topics", () => {
-    it("GET /: will respond with status 200", () => {
-      return request(app) // remove this
-        .get("/api/topics")
-        .expect(200);
-    });
-    it("GET /: will return an array of objects with the required keys (description, slug)", () => {
+    it("GET /: will return status 200 and an array of objects with the required keys (description, slug)", () => {
       return request(app)
         .get("/api/topics")
         .expect(200)
@@ -39,9 +34,35 @@ describe("/api", function() {
     it("GET /* : will return status 400 and msg: 'Bad Request'", () => {
       return request(app)
         .get("/api/topics/notValid")
-        .expect(400)
+        .expect(404)
         .then(result => {
-          expect(result.body.msg).to.equal("Bad Request");
+          expect(result.body.msg).to.equal("Route Not Found");
+        });
+    });
+    it("POST /* :405 when other methods are attempted'", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({ hello: "hello" })
+        .expect(405)
+        .then(result => {
+          expect(result.body.msg).to.equal("Method Not Found");
+        });
+    });
+    it("PATCH /* :405 when other methods are attempted'", () => {
+      return request(app)
+        .patch("/api/topics")
+        .send({ hello: "hello" })
+        .expect(405)
+        .then(result => {
+          expect(result.body.msg).to.equal("Method Not Found");
+        });
+    });
+    it("DELETE /* :405 when other methods are attempted'", () => {
+      return request(app)
+        .delete("/api/topics")
+        .expect(405)
+        .then(result => {
+          expect(result.body.msg).to.equal("Method Not Found");
         });
     });
   });
@@ -72,7 +93,18 @@ describe("/api", function() {
         });
     });
   });
-  describe("/articles", () => {
+  describe.only("/articles", () => {
+    it("GET 200, will return status 200 when successful", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(result => {
+          console.log(result.body);
+          expect(result.body).to.deep.equal("array");
+        });
+    });
+  });
+  describe("/:article_id", () => {
     describe("/GET", () => {
       //NEED TO DO SOME ERROR HANDLING!!!!
       it("GET /articles/:articles_id will respond with status 200", () => {
@@ -186,7 +218,7 @@ describe("/api", function() {
         });
         it("GET 400: when request an article that does not exist, should respond with 'Article not found'", () => {
           return request(app)
-            .get("/api/articles/99999/comments")
+            .get("/api/articles/99999/comments") /////comment may not exist but article exists ///
             .expect(404)
             .then(result => {
               expect(result.body.msg).to.equal("Article not found");
@@ -214,12 +246,13 @@ describe("/api", function() {
     });
     describe("/PATCH", () => {
       // NEEED TO DO ERROR HANDLING!!!!
+      //
       it("PATCH 200 >> /articles/:articles_id >> will return status 200 and the article requested with an increased vote count", () => {
         let newVote = 18;
 
         return request(app)
-          .patch("/api/articles/2")
-          .send({ inc_votes: newVote })
+          .patch("/api/articles/2") //method & url
+          .send({ inc_votes: newVote }) //body of information sending
           .expect(200)
           .then(result => {
             expect(result.body.article.votes).to.equal(18);
@@ -255,21 +288,18 @@ describe("/api", function() {
           });
       });
     });
-    describe.only("/POST", () => {
+    describe("/POST", () => {
       it("POST 200 >> /articles/:articles_id/comments >> should return status 200 when successful and return the comment body", () => {
         const objComment = {
           username: "butter_bridge",
           body: "I give this 10 out of 10!"
-        }; //existing
+        };
         return request(app)
           .post("/api/articles/4/comments")
-          .expect(200)
+          .expect(200) /// amend to the correct 2++
           .send(objComment)
           .then(result => {
-            console.log(result.body.newComment);
-            //want everything in the comment
             expect(result.body).to.be.an("object");
-            //expect(result.body.newComment).to.be.a("string");
             expect(result.body.newComment).to.have.keys(
               "comment_id",
               "author",
@@ -281,7 +311,73 @@ describe("/api", function() {
             expect(result.body.newComment.body).to.equal(
               "I give this 10 out of 10!"
             );
-            //how would you test the comment has been posted or the articles comment count has been updated???
+          });
+      });
+      it("POST 500 >> /articles/:articles_id/comments >> should return status 500 when trying to post information that doesn't include username", () => {
+        const objComment = {
+          Bleh: "butter_bridge",
+          body: "I give this 10 out of 10!"
+        };
+        return request(app)
+          .post("/api/articles/4/comments")
+          .expect(500)
+          .send(objComment)
+          .then(result => {
+            expect(result.body.msg).to.equal("Incorrect column format");
+          });
+      });
+      it("POST 500 >> /articles/:articles_id/comments >> should return status 500 when trying to post information that doesn't include body", () => {
+        const objComment = {
+          username: "butter_bridge",
+          bleh: "I give this 10 out of 10!"
+        };
+        return request(app)
+          .post("/api/articles/5/comments")
+          .expect(500)
+          .send(objComment)
+          .then(result => {
+            expect(result.body.msg).to.equal("Incorrect column format");
+          });
+      });
+      it("POST 500 >> /articles/:articles_id/comments >> should return status 500 when trying to post information that doesn't include body or username keys", () => {
+        const objComment = {
+          Notusername: "butter_bridge",
+          bleh: "I give this 10 out of 10!"
+        };
+        return request(app)
+          .post("/api/articles/5/comments")
+          .expect(500)
+          .send(objComment)
+          .then(result => {
+            expect(result.body.msg).to.equal("Incorrect column format");
+          });
+      });
+      it("POST 200 >> /articles/:articles_id/comments >> should return status when trying to post comment to an article does not exist", () => {
+        const objComment = {
+          username: "butter_bridge",
+          body: "I give this 10 out of 10!"
+        };
+        return request(app)
+          .post("/api/articles/7/comments")
+          .expect(200)
+          .send(objComment)
+          .then(result => {
+            expect(result.body.newComment.body).to.equal(
+              "I give this 10 out of 10!"
+            );
+          });
+      });
+      it("POST 404 >> /articles/:articles_id/comments >> should return status when trying to post comment to an article does not exist", () => {
+        const objComment = {
+          username: "butter_bridge",
+          body: "I give this 10 out of 10!"
+        };
+        return request(app)
+          .post("/api/articles/9999/comments")
+          .expect(404)
+          .send(objComment)
+          .then(result => {
+            expect(result.body.msg).to.equal("Article Does Not Exist");
           });
       });
     });
