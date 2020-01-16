@@ -8,7 +8,8 @@ const chaiSorted = require("chai-sorted");
 
 chai.use(chaiSorted);
 
-describe("/api", () => {
+describe("/api", function() {
+  this.timeout(15000);
   beforeEach(() => connection.seed.run());
   after(() => connection.destroy());
   // it("404: Invalid route, we are testing for routes that are not valid", () => {
@@ -254,7 +255,7 @@ describe("/api", () => {
           });
       });
     });
-    describe("/POST", () => {
+    describe.only("/POST", () => {
       it("POST 200 >> /articles/:articles_id/comments >> should return status 200 when successful and return the comment body", () => {
         const objComment = {
           username: "butter_bridge",
@@ -267,7 +268,7 @@ describe("/api", () => {
           .then(result => {
             //want everything in the comment
             expect(result.body).to.be.an("object");
-            expect(result.body.newComment).to.be.a("string");
+            //expect(result.body.newComment).to.be.a("string");
             expect(result.body.newComment).to.equal(objComment.body);
             //how would you test the comment has been posted or the articles comment count has been updated???
           });

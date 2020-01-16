@@ -45,14 +45,14 @@ exports.getCommentById = (req, res, next) => {
   const article_id = req.params.article_id;
   const order = req.query.order;
   const sort_by = req.query.sort_by;
-  const allQuery = req.query;
-  if (allQuery) {
-    for (let keys in allQuery) {
-      if (keys !== order || keys !== sort_by) {
-        console.log("nope");
-      }
-    }
-  }
+  // const allQuery = req.query;
+  // if (allQuery) {
+  //   for (let keys in allQuery) {
+  //     if (keys !== order || keys !== sort_by) {
+  //       console.log("nope");
+  //     }
+  //   }
+  // }
 
   // console.log(x);
 
@@ -61,7 +61,7 @@ exports.getCommentById = (req, res, next) => {
       res.status(200).send({ comments: result });
     })
     .catch(function(err) {
-      console.log(err);
+      // console.log(err, "in the controller catch");
       next(err);
     });
 };

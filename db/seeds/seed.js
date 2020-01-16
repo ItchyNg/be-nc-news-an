@@ -12,7 +12,6 @@ exports.seed = function(knex) {
     .rollback()
     .then(() => knex.migrate.latest()) //rollback and latest to reset the database each time it seeded
     .then(() => {
-      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
       const topicsInsertions = knex("topics").insert(topicData);
       const usersInsertions = knex("users").insert(userData);
       return Promise.all([topicsInsertions, usersInsertions]);
@@ -31,6 +30,6 @@ exports.seed = function(knex) {
       const formattedComments = formatComments(commentData, articleRef);
 
       return knex("comments").insert(formattedComments);
-    })
-    .catch(console.log);
+    });
+  // .catch(console.log);
 };
