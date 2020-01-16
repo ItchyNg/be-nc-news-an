@@ -1,21 +1,24 @@
-process.env.NODE_env = "test";
+process.env.NODE_ENV = "test";
 const chai = require("chai");
 const { expect } = chai;
 const request = require("supertest");
 const app = require(".././app");
 const connection = require("../db/connection");
+const chaiSorted = require("chai-sorted");
+
+chai.use(chaiSorted);
 
 describe("/api", () => {
   beforeEach(() => connection.seed.run());
   after(() => connection.destroy());
-  it("404: Invalid route, we are testing for routes that are not valid", () => {
-    return request(app)
-      .get("/api/invalidRoute")
-      .expect(404)
-      .then(errorResult => {
-        expect(errorResult.body.msg).to.equal("Route not found");
-      });
-  });
+  // it("404: Invalid route, we are testing for routes that are not valid", () => {
+  //   return request(app)
+  //     .get("/api/invalidRoute")
+  //     .expect(404)
+  //     .then(errorResult => {
+  //       expect(errorResult.body.msg).to.equal("Route not found");
+  //     });
+  // });
   describe("/topics", () => {
     it("GET /: will respond with status 200", () => {
       return request(app) // remove this
@@ -109,6 +112,104 @@ describe("/api", () => {
             expect(result.body.article.article_id).to.equal(5);
           });
       });
+      describe("GET/:article_id/comments", () => {
+        it("GET 200 >> /articles/:articles_id/comments >> should return status 200 when successful , in the correct format including the appropriate key columns", () => {
+          return request(app)
+            .get("/api/articles/5/comments")
+            .expect(200)
+            .then(result => {
+              expect(result.body.comments).to.be.an("array");
+              expect(result.body.comments.length).to.equal(2);
+              expect(result.body.comments[0]).to.have.keys(
+                "author",
+                "comment_id",
+                "body",
+                "created_at",
+                "votes"
+              );
+            });
+        });
+        it("GET  >> /articles/:articles_id/comments >> the comments should be sorted by created_at and ordered in descending order by default", () => {
+          return request(app)
+            .get("/api/articles/1/comments")
+            .then(result => {
+              expect(result.body.comments).to.be.sortedBy("created_at", {
+                descending: true
+              });
+            });
+        });
+        it("GET  >> /articles/:articles_id/comments >> the comments should be sorted by created_at by default and ordered in ascending order by request", () => {
+          return request(app)
+            .get("/api/articles/1/comments?order=asc")
+            .then(result => {
+              expect(result.body.comments).to.be.sortedBy("created_at", {
+                descending: false
+              });
+            });
+        });
+        it("GET  >> /articles/:articles_id/comments >> the comments should be sorted by comment_id by request and ordered by descending order by default", () => {
+          return request(app)
+            .get("/api/articles/1/comments?sorted_by=comment_id")
+            .then(result => {
+              expect(result.body.comments).to.be.sortedBy("comment_id", {
+                descending: false
+              });
+            });
+        });
+        it("GET  >> /articles/:articles_id/comments >> the comments should be sorted by comment_id by request and ordered by ascending order by reqeest", () => {
+          return request(app)
+            .get("/api/articles/1/comments?order=asc&&sort_by=comment_id")
+            .then(result => {
+              expect(result.body.comments).to.be.sortedBy("comment_id", {
+                descending: false
+              });
+            });
+        });
+      });
+      describe("GET ERRORS/:article_id/comments", () => {
+        it("GET 400: when given an invalid sort_by column, should respond with 'Bad Request", () => {
+          return request(app)
+            .get("/api/articles/1/comments?sort_by=notAValidColumn")
+            .expect(400)
+            .then(result => {
+              expect(result.body.msg).to.equal("Bad Request");
+            });
+        });
+        it("GET 400: when given an invalid order column, should respond with 'Bad Request'", () => {
+          return request(app)
+            .get("/api/articles/1/comments?order=notValidOrder")
+            .expect(400)
+            .then(result => {
+              expect(result.body.msg).to.equal("Bad Request");
+            });
+        });
+        it("GET 400: when request an article that does not exist, should respond with 'Article not found'", () => {
+          return request(app)
+            .get("/api/articles/99999/comments")
+            .expect(404)
+            .then(result => {
+              expect(result.body.msg).to.equal("Article not found");
+            });
+        });
+        it("GET 400: when request an article in the wrong format, should respond with 'Invalid format to request article'", () => {
+          return request(app)
+            .get("/api/articles/oneone/comments")
+            .expect(400)
+            .then(result => {
+              expect(result.body.msg).to.equal(
+                "Invalid format to request article"
+              );
+            });
+        });
+        // it("GET 400: when request an query that does not exist, should respond with 'Invalid query'", () => {
+        //   return request(app)
+        //     .get("/api/articles/1/comments?inValidQuery=asc&invald=bleh")
+        //     .expect(400)
+        //     .then(result => {
+        //       expect(result.body.msg).to.equal("Invalid query");
+        //     });
+        // });
+      });
     });
     describe("/PATCH", () => {
       // NEEED TO DO ERROR HANDLING!!!!
@@ -155,12 +256,16 @@ describe("/api", () => {
     });
     describe("/POST", () => {
       it("POST 200 >> /articles/:articles_id/comments >> should return status 200 when successful and return the comment body", () => {
-        const objComment = { username: "x", body: "I give this 10 out of 10!" };
+        const objComment = {
+          username: "butter_bridge",
+          body: "I give this 10 out of 10!"
+        }; //existing
         return request(app)
           .post("/api/articles/4/comments")
           .expect(200)
           .send(objComment)
           .then(result => {
+            //want everything in the comment
             expect(result.body).to.be.an("object");
             expect(result.body.newComment).to.be.a("string");
             expect(result.body.newComment).to.equal(objComment.body);

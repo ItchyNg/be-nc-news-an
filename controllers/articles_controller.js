@@ -1,7 +1,8 @@
 const {
   selectArticleById,
   changeArticleVotes,
-  submittedCommentById
+  submittedCommentById,
+  selectCommentById
 } = require("../models/articles_model");
 
 exports.getArticleById = (req, res, next) => {
@@ -36,6 +37,31 @@ exports.postCommentById = (req, res, next) => {
       res.status(200).send({ newComment: result });
     })
     .catch(function(err) {
+      next(err);
+    });
+};
+
+exports.getCommentById = (req, res, next) => {
+  const article_id = req.params.article_id;
+  const order = req.query.order;
+  const sort_by = req.query.sort_by;
+  const allQuery = req.query;
+  if (allQuery) {
+    for (let keys in allQuery) {
+      if (keys !== order || keys !== sort_by) {
+        console.log("nope");
+      }
+    }
+  }
+
+  // console.log(x);
+
+  selectCommentById(order, article_id, sort_by)
+    .then(result => {
+      res.status(200).send({ comments: result });
+    })
+    .catch(function(err) {
+      console.log(err);
       next(err);
     });
 };

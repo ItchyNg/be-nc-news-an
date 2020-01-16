@@ -24,6 +24,24 @@ const changeArticleVotes = (article_id, patchVote) => {
 };
 
 const submittedCommentById = (article_id, usernameAndComment) => {
+  // const newComment = {
+  //   //formatted comment
+  //   author: usernameAndComment.username,
+  //   article_id: +article_id,
+  //   votes: 0,
+  //   created_at: new Date(),
+  //   body: usernameAndComment.body
+  // };
+  // return (
+  //   connection("comments")
+  //     .insert(newComment)
+  //     //.select("*")
+  //     .then(result => {
+  //       console.log(result);
+  //       return result;
+  //     })
+  // );
+  /////////////////////////////////
   return connection
     .select("*")
     .from("comments")
@@ -44,15 +62,34 @@ const submittedCommentById = (article_id, usernameAndComment) => {
       //console.log(result, result.length);
       return newComment.body;
     });
-
   //need to put a new comment in the comment array
   // make sure the article comment count goes up???
   //returns the comment body
   //INSERT INTO houses (columns) VALUES (""${houseToAdd.house_name}, only works using knex?
 };
 
+const selectCommentById = (order, article_id, sort_by) => {
+  return connection
+    .select("comment_id", "votes", "created_at", "author", "body")
+    .from("comments")
+    .where("article_id", article_id)
+    .orderBy(sort_by || "created_at", order || "desc")
+    .then(result => {
+      if (result.length === 0) {
+        return Promise.reject({ status: 404, msg: "Article not found" });
+      }
+      if (order) {
+        if (order !== "desc" && order !== "asc") {
+          return Promise.reject({ status: 400, msg: "Bad Request" });
+        }
+      }
+      return result;
+    });
+};
+
 module.exports = {
   selectArticleById,
   changeArticleVotes,
-  submittedCommentById
+  submittedCommentById,
+  selectCommentById
 };
