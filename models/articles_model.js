@@ -39,48 +39,13 @@ const submittedCommentById = (article_id, usernameAndComment) => {
     article_id: article_id,
     body: usernameAndComment.body
   };
-  // console.log(newComment);
-  return (
-    connection("comments")
-      .insert({
-        author: usernameAndComment.username,
-        article_id: article_id,
-        body: usernameAndComment.body
-      })
-      // .into("comments")
-      .returning("*")
-      //.select("*")
-      .then(result => {
-        console.log(result);
-        return result;
-      })
-  );
 
-  // /////////////////////////////////
-  // return connection
-  //   .select("*")
-  //   .from("comments")
-  //   .then(result => {
-  //     const max = result.reduce(function(prev, current) {
-  //       return prev.comment_id > current.comment_id ? prev : current;
-  //     }); //finds the highest comment_id
-  //     const newComment = {
-  //       //formatted comment
-  //       comment_id: max.comment_id + 1,
-  //       author: usernameAndComment.username,
-  //       article_id: +article_id,
-  //       votes: 0,
-  //       created_at: new Date(),
-  //       body: usernameAndComment.body
-  //     };
-  //     result.push(newComment); //push it into the comments
-  //     //console.log(result, result.length);
-  //     return newComment.body;
-  //   });
-  // //need to put a new comment in the comment array
-  // // make sure the article comment count goes up???
-  // //returns the comment body
-  // //INSERT INTO houses (columns) VALUES (""${houseToAdd.house_name}, only works using knex?
+  return connection("comments")
+    .insert(newComment)
+    .returning("*")
+    .then(result => {
+      return result[0];
+    });
 };
 
 const selectCommentById = (order, article_id, sort_by) => {

@@ -266,10 +266,21 @@ describe("/api", function() {
           .expect(200)
           .send(objComment)
           .then(result => {
+            console.log(result.body.newComment);
             //want everything in the comment
             expect(result.body).to.be.an("object");
             //expect(result.body.newComment).to.be.a("string");
-            expect(result.body.newComment).to.equal(objComment.body);
+            expect(result.body.newComment).to.have.keys(
+              "comment_id",
+              "author",
+              "article_id",
+              "votes",
+              "created_at",
+              "body"
+            );
+            expect(result.body.newComment.body).to.equal(
+              "I give this 10 out of 10!"
+            );
             //how would you test the comment has been posted or the articles comment count has been updated???
           });
       });
