@@ -50,7 +50,7 @@ const submittedCommentById = (article_id, usernameAndComment) => {
   };
 
   if (!newComment.author || !newComment.body) {
-    return Promise.reject({ status: 500, msg: "Incorrect column format" });
+    return Promise.reject({ status: 400, msg: "Incorrect column format" });
   }
 
   return connection
@@ -83,14 +83,22 @@ const submittedCommentById = (article_id, usernameAndComment) => {
 
 const selectCommentById = (order, article_id, sort_by) => {
   return connection
-    .select("comment_id", "votes", "created_at", "author", "body")
-    .from("comments")
+    .select("*")
+    .from("articles")
     .where("article_id", article_id)
-    .orderBy(sort_by || "created_at", order || "desc")
-    .then(result => {
-      if (result.length === 0) {
+    .then(articlerows => {
+      if (articlerows.length) {
+        return connection
+          .select("comment_id", "votes", "created_at", "author", "body")
+          .from("comments")
+          .where("article_id", article_id)
+          .orderBy(sort_by || "created_at", order || "desc");
+      } else {
         return Promise.reject({ status: 404, msg: "Article not found" });
-      } //but maybe there is no comments but that article exist so it should return an empty array and not error
+      }
+    })
+    .then(result => {
+      console.log(result);
       if (order) {
         if (order !== "desc" && order !== "asc") {
           return Promise.reject({ status: 400, msg: "Bad Request" });

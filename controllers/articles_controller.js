@@ -35,7 +35,7 @@ exports.postCommentById = (req, res, next) => {
   const usernameAndComment = req.body;
   submittedCommentById(article_id, usernameAndComment)
     .then(result => {
-      res.status(200).send({ newComment: result });
+      res.status(201).send({ newComment: result });
     })
     .catch(function(err) {
       console.log(err, "in the controller catch");

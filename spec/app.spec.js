@@ -294,6 +294,24 @@ describe("/api", function() {
             expect(result.body.article.article_id).to.equal(5);
           });
       });
+      it("POST /* :405 when other methods are attempted'", () => {
+        return request(app)
+          .put("/api/articles/1")
+          .send({ hello: "hello" })
+          .expect(405)
+          .then(result => {
+            expect(result.body.msg).to.equal("Method Not Found");
+          });
+      });
+
+      it("DELETE /* :405 when other methods are attempted'", () => {
+        return request(app)
+          .delete("/api/articles/1")
+          .expect(405)
+          .then(result => {
+            expect(result.body.msg).to.equal("Method Not Found");
+          });
+      });
       describe("GET/:article_id/comments", () => {
         it("GET 200 >> /articles/:articles_id/comments >> should return status 200 when successful , in the correct format including the appropriate key columns", () => {
           return request(app)
@@ -347,8 +365,15 @@ describe("/api", function() {
               });
             });
         });
+        it("GET  >> /articles/:articles_id/comments >> returns an empty array when requesting an article with no comments", () => {
+          return request(app)
+            .get("/api/articles/2/comments")
+            .then(result => {
+              expect(result.body.comments).to.deep.equal([]);
+            });
+        });
       });
-      describe.only("GET ERRORS/:article_id/comments", () => {
+      describe("GET ERRORS/:article_id/comments", () => {
         it("GET 400: when given an invalid sort_by column, should respond with 'Bad Request", () => {
           return request(app)
             .get("/api/articles/1/comments?sort_by=notAValidColumn")
@@ -367,7 +392,7 @@ describe("/api", function() {
         });
         it("GET 400: when request an article that does not exist, should respond with 'Article not found'", () => {
           return request(app)
-            .get("/api/articles/99999/comments") /////comment may not exist but article exists ///
+            .get("/api/articles/99999/comments")
             .expect(404)
             .then(result => {
               expect(result.body.msg).to.equal("Article not found");
@@ -385,22 +410,22 @@ describe("/api", function() {
         });
         it("POST /* :405 when other methods are attempted'", () => {
           return request(app)
-            .put("/api/articles/1")
+            .put("/api/articles/1/comments")
             .send({ hello: "hello" })
             .expect(405)
             .then(result => {
               expect(result.body.msg).to.equal("Method Not Found");
             });
         });
-
         it("DELETE /* :405 when other methods are attempted'", () => {
           return request(app)
-            .delete("/api/articles/1")
+            .delete("/api/articles/1/comments")
             .expect(405)
             .then(result => {
               expect(result.body.msg).to.equal("Method Not Found");
             });
         });
+
         // it("GET 400: when request an query that does not exist, should respond with 'Invalid query'", () => {
         //   return request(app)
         //     .get("/api/articles/1/comments?inValidQuery=asc&invald=bleh")
@@ -464,14 +489,14 @@ describe("/api", function() {
       describe("ERROR PATCH >> /articles/:articles_id", () => {});
     });
     describe("/POST", () => {
-      it("POST 200 >> /articles/:articles_id/comments >> should return status 200 when successful and return the comment body", () => {
+      it("POST 201 >> /articles/:articles_id/comments >> should return status 200 when successful and return the comment body", () => {
         const objComment = {
           username: "butter_bridge",
           body: "I give this 10 out of 10!"
         };
         return request(app)
           .post("/api/articles/4/comments")
-          .expect(200) /// amend to the correct 2++
+          .expect(201) /// amend to the correct 2++
           .send(objComment)
           .then(result => {
             expect(result.body).to.be.an("object");
@@ -488,53 +513,53 @@ describe("/api", function() {
             );
           });
       });
-      it("POST 500 >> /articles/:articles_id/comments >> should return status 500 when trying to post information that doesn't include username", () => {
+      it("POST 400 >> /articles/:articles_id/comments >> should return status 500 when trying to post information that doesn't include username", () => {
         const objComment = {
           Bleh: "butter_bridge",
           body: "I give this 10 out of 10!"
         };
         return request(app)
           .post("/api/articles/4/comments")
-          .expect(500)
+          .expect(400)
           .send(objComment)
           .then(result => {
             expect(result.body.msg).to.equal("Incorrect column format");
           });
       });
-      it("POST 500 >> /articles/:articles_id/comments >> should return status 500 when trying to post information that doesn't include body", () => {
+      it("POST 400 >> /articles/:articles_id/comments >> should return status 500 when trying to post information that doesn't include body", () => {
         const objComment = {
           username: "butter_bridge",
           bleh: "I give this 10 out of 10!"
         };
         return request(app)
           .post("/api/articles/5/comments")
-          .expect(500)
+          .expect(400)
           .send(objComment)
           .then(result => {
             expect(result.body.msg).to.equal("Incorrect column format");
           });
       });
-      it("POST 500 >> /articles/:articles_id/comments >> should return status 500 when trying to post information that doesn't include body or username keys", () => {
+      it("POST 400 >> /articles/:articles_id/comments >> should return status 500 when trying to post information that doesn't include body or username keys", () => {
         const objComment = {
           Notusername: "butter_bridge",
           bleh: "I give this 10 out of 10!"
         };
         return request(app)
           .post("/api/articles/5/comments")
-          .expect(500)
+          .expect(400)
           .send(objComment)
           .then(result => {
             expect(result.body.msg).to.equal("Incorrect column format");
           });
       });
-      it("POST 200 >> /articles/:articles_id/comments >> should return status when trying to post comment to an article does not exist", () => {
+      it("POST 201 >> /articles/:articles_id/comments >> should return status when trying to post comment to an article does not have any comments", () => {
         const objComment = {
           username: "butter_bridge",
           body: "I give this 10 out of 10!"
         };
         return request(app)
           .post("/api/articles/7/comments")
-          .expect(200)
+          .expect(201)
           .send(objComment)
           .then(result => {
             expect(result.body.newComment.body).to.equal(
@@ -553,6 +578,57 @@ describe("/api", function() {
           .send(objComment)
           .then(result => {
             expect(result.body.msg).to.equal("Article Does Not Exist");
+          });
+      });
+    });
+  });
+  describe("/comments", () => {
+    describe.only("/:comment_id", () => {
+      it("PATCH 200 >> /comments/:comment_id >> will return status 200 when successful and have the required keys", () => {
+        const newVote = 10;
+
+        return request(app)
+          .patch("/api/comments/2") //method & url
+          .send({ inc_votes: newVote }) //body of information sending
+          .expect(200)
+          .then(result => {
+            expect(result.body.comment[0]).to.have.keys(
+              "comment_id",
+              "author",
+              "article_id",
+              "votes",
+              "created_at",
+              "body"
+            );
+          });
+      });
+      it("PATCH 200 >> /comments/:comment_id >> the comment with the vote count increased by the correct amount", () => {
+        const newVote = 10;
+
+        return request(app)
+          .patch("/api/comments/2") //method & url
+          .send({ inc_votes: newVote }) //body of information sending
+          .expect(200)
+          .then(result => {
+            expect(result.body.comment[0].votes).to.equal(24);
+          });
+      });
+      it("PATCH 200 >> /comments/:comment_id >> the comment with the vote count decreased by the correct amount", () => {
+        const newVote = -10;
+
+        return request(app)
+          .patch("/api/comments/2") //method & url
+          .send({ inc_votes: newVote }) //body of information sending
+          .expect(200)
+          .then(result => {
+            expect(result.body.comment[0].votes).to.equal(4);
+          });
+      });
+      it("PATCH 200 / : when patch req with no send value, it just returns the comment of the corresponding id with no changes to vote count", () => {
+        return request(app)
+          .patch("/api/comments/2")
+          .then(result => {
+            expect(result.body.comment[0].votes).to.equal(14);
           });
       });
     });
