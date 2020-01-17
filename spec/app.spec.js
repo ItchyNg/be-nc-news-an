@@ -276,7 +276,6 @@ describe("/api", function() {
   });
   describe("/:article_id", () => {
     describe("/GET", () => {
-      //NEED TO DO SOME ERROR HANDLING!!!!
       it("GET /articles/:articles_id will respond with status 200", () => {
         return request(app)
           .get("/api/articles/1")
@@ -307,12 +306,15 @@ describe("/api", function() {
             expect(result.body.article.article_id).to.equal(1);
           });
       });
+    });
+    describe("ERROR /:article_id", () => {
+      it("GET 404 / : will return status when article is not found", () => {});
       it("GET /articles/:articles_id will respond with just the article_id searched for", () => {
         return request(app)
-          .get("/api/articles/5")
+          .get("/api/articles/10000")
+          .expect(404)
           .then(result => {
-            expect(result.body.article.comment_count).to.equal(2);
-            expect(result.body.article.article_id).to.equal(5);
+            expect(result.body.msg).to.equal("Not Found");
           });
       });
       it("POST /* :405 when other methods are attempted'", () => {
@@ -333,7 +335,8 @@ describe("/api", function() {
             expect(result.body.msg).to.equal("Method Not Found");
           });
       });
-      describe.only("GET/:article_id/comments", () => {
+
+      describe("GET/:article_id/comments", () => {
         it("GET 200 >> /articles/:articles_id/comments >> should return status 200 when successful , in the correct format including the appropriate key columns", () => {
           return request(app)
             .get("/api/articles/5/comments")
@@ -394,7 +397,7 @@ describe("/api", function() {
             });
         });
       });
-      describe("GET ERRORS/:article_id/comments", () => {
+      describe("ERRORS/:article_id/comments", () => {
         it("GET 400: when given an invalid sort_by column, should respond with 'Bad Request", () => {
           return request(app)
             .get("/api/articles/1/comments?sort_by=notAValidColumn")

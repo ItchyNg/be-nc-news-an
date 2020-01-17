@@ -19,6 +19,9 @@ const selectArticleById = article_id => {
     .leftJoin("comments", "articles.article_id", "comments.article_id")
     .groupBy("articles.article_id")
     .then(result => {
+      if (!result.length) {
+        return Promise.reject({ status: 404, msg: "Not Found" });
+      }
       result[0].comment_count = +result[0].comment_count;
       return result[0];
     });
