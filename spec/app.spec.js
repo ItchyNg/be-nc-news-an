@@ -628,11 +628,16 @@ describe("/api", function() {
             expect(result.body.comment[0].votes).to.equal(16);
           });
       });
-      it('"DELETE 204', () => {
-        return request(app)
-          .delete("/api/comments/1")
-          .expect(204);
-      });
+      // it('"DELETE 204', () => {
+      //   return request(app)
+      //     .delete("/api/comments/1")
+      //     .expect(204)
+      //     .then(result => {
+      //       console.log(result);
+
+      //       return result;
+      //     });
+      // });
       describe("ERROR /:comment_id", () => {
         it("PATCH 404 / : when requesting a patch to a comment that doesnt exist it will return a messege with 'Not Found'", () => {
           return request(app)

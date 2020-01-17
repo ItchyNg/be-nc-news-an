@@ -6,7 +6,6 @@ const {
 exports.amendVoteByCommentId = (req, res, next) => {
   const { comment_id } = req.params;
   const newVote = req.body.inc_votes;
-  s;
   alterVoteReturnComment(comment_id, newVote)
     .then(result => {
       res.status(200).send({ comment: result });
