@@ -98,7 +98,6 @@ const selectCommentById = (order, article_id, sort_by) => {
       }
     })
     .then(result => {
-      console.log(result);
       if (order) {
         if (order !== "desc" && order !== "asc") {
           return Promise.reject({ status: 400, msg: "Bad Request" });

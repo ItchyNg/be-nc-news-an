@@ -38,7 +38,6 @@ exports.postCommentById = (req, res, next) => {
       res.status(201).send({ newComment: result });
     })
     .catch(function(err) {
-      console.log(err, "in the controller catch");
       next(err);
     });
 };

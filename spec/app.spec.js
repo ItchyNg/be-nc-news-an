@@ -100,7 +100,6 @@ describe("/api", function() {
           .get("/api/articles")
           .expect(200)
           .then(result => {
-            console.log(result.body.articles, "<<<<<in test");
             expect(result.body.articles).to.be.an("array");
             expect(result.body.articles[0]).to.be.an("object");
             expect(result.body.articles[0]).to.have.keys(
@@ -281,7 +280,6 @@ describe("/api", function() {
         return request(app)
           .get("/api/articles/1")
           .then(result => {
-            console.log(result.body);
             expect(result.body.article.comment_count).to.equal(13);
             expect(result.body.article.article_id).to.equal(1);
           });
@@ -482,7 +480,6 @@ describe("/api", function() {
         return request(app)
           .patch("/api/articles/1")
           .then(result => {
-            console.log(result.body);
             expect(result.body.article.votes).to.equal(100);
           });
       });
@@ -630,6 +627,11 @@ describe("/api", function() {
           .then(result => {
             expect(result.body.comment[0].votes).to.equal(16);
           });
+      });
+      it('"DELETE 204', () => {
+        return request(app)
+          .delete("/api/comments/1")
+          .expect(204);
       });
       describe("ERROR /:comment_id", () => {
         it("PATCH 404 / : when requesting a patch to a comment that doesnt exist it will return a messege with 'Not Found'", () => {

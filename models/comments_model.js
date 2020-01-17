@@ -19,7 +19,7 @@ const commentDeleted = comment_id => {
     .select("*")
     .from("comments")
     .then(result => {
-      console.log(result);
+      // console.log(result);
       return result;
     });
 };
