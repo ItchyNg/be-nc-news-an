@@ -68,15 +68,14 @@ exports.getCommentById = (req, res, next) => {
 };
 
 exports.getAllArticles = (req, res, next) => {
-  const author = req.query.author;
-  const topic = req.query.topic;
-  const order = req.query.order;
-  const sort_by = req.query.sort_by;
-  fetchAllArticles((author, topic, order, sort_by))
+  const query = req.query; // includes author, topic, order, sort_by
+
+  fetchAllArticles(query)
     .then(result => {
       res.status(200).send({ articles: result });
     })
     .catch(function(err) {
+      console.log(err, "controller error");
       next(err);
     });
 };

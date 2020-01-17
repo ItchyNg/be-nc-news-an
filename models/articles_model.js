@@ -19,7 +19,6 @@ const selectArticleById = article_id => {
     .leftJoin("comments", "articles.article_id", "comments.article_id")
     .groupBy("articles.article_id")
     .then(result => {
-      //if you are patching would you want to mutate the db??????
       result[0].comment_count = +result[0].comment_count;
       return result[0];
     });
@@ -37,7 +36,7 @@ const changeArticleVotes = (article_id, patchVote) => {
     .from("articles")
     .where("article_id", article_id)
     .returning("*")
-    .increment("votes", patchVote)
+    .increment("votes", patchVote || 0)
     .then(result => {
       return result[0];
     });
@@ -101,7 +100,7 @@ const selectCommentById = (order, article_id, sort_by) => {
     });
 };
 
-const fetchAllArticles = (author, topic, order, sort_by) => {
+const fetchAllArticles = query => {
   return (
     connection
       .select(
@@ -113,17 +112,60 @@ const fetchAllArticles = (author, topic, order, sort_by) => {
         "articles.votes"
       )
       .from("articles")
-      //.where("articles.article_id", article_id)
       .count({ comment_count: "comment_id" })
       .leftJoin("comments", "articles.article_id", "comments.article_id")
       .groupBy("articles.article_id")
+      //to add modify if the author and topic are present to put a where into the promise object chain //'lurker' //"icellusedkars"
+      .orderBy(query.sort_by || "created_at", query.order || "desc")
+      .modify(filterByQuery => {
+        if (query.author) {
+          filterByQuery.where("articles.author", query.author);
+        }
+        if (query.topic) {
+          filterByQuery.where("articles.topic", query.topic);
+        }
+      })
       .then(result => {
-        //if you are patching would you want to mutate the db??????
-        result[0].comment_count = +result[0].comment_count;
-        return result;
+        if (query.order) {
+          //error handling for order and sort_by
+          if (query.order !== "desc" && query.order !== "asc") {
+            return Promise.reject({ status: 400, msg: "Bad Request" });
+          }
+        }
+        if (!result.length && query.author) {
+          //andling for empty array or result with nothing inside
+          return connection
+            .select("*")
+            .from("users")
+            .returning("*")
+            .where("users.username", query.author); //query.author
+        } else if (!result.length && query.topic) {
+          return connection
+            .select("*")
+            .from("topics")
+            .returning("*")
+            .where("topics.slug", query.topic); //query.topic
+        } else {
+          return result;
+        }
+      })
+      .then(usersRows => {
+        if (usersRows.length) {
+          return usersRows[0].author //if the req column exists....etc...
+            ? usersRows
+            : usersRows[0].topic
+            ? usersRows
+            : []; //if not empty array, dont want to return a table of other stuff
+        } else {
+          return Promise.reject({
+            //topic or author doesnt exist -> reject
+            status: 404,
+            msg: "User Not Found"
+          });
+        }
       })
   );
-};
+}; //done!!!!
 
 module.exports = {
   selectArticleById,

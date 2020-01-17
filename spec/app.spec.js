@@ -93,15 +93,163 @@ describe("/api", function() {
         });
     });
   });
-  describe.only("/articles", () => {
-    it("GET 200, will return status 200 when successful", () => {
-      return request(app)
-        .get("/api/articles")
-        .expect(200)
-        .then(result => {
-          console.log(result.body);
-          expect(result.body).to.deep.equal("array");
-        });
+  describe("/articles", () => {
+    describe("/articles GET", () => {
+      it("GET 200, will return status 200 when successful, be an array of objects and have the appropriate keys", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(result => {
+            console.log(result.body.articles, "<<<<<in test");
+            expect(result.body.articles).to.be.an("array");
+            expect(result.body.articles[0]).to.be.an("object");
+            expect(result.body.articles[0]).to.have.keys(
+              "author",
+              "title",
+              "article_id",
+              "topic",
+              "created_at",
+              "votes",
+              "comment_count"
+            );
+          });
+      });
+      it("GET 200, sort_by should default to date and the order should default to descending", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(result => {
+            expect(result.body.articles).to.be.sortedBy("created_at", {
+              descending: true
+            });
+          });
+      });
+      it("GET 200, data should be sort_by article_id on request and the order should default to descending", () => {
+        return request(app)
+          .get("/api/articles?sort_by=article_id")
+          .expect(200)
+          .then(result => {
+            expect(result.body.articles).to.be.sortedBy("article_id", {
+              descending: true
+            });
+          });
+      });
+      it("GET 200, sort_by should default to date and the order should be asc on request", () => {
+        return request(app)
+          .get("/api/articles?order=asc")
+          .expect(200)
+          .then(result => {
+            expect(result.body.articles).to.be.sortedBy("created_at", {
+              descending: false
+            });
+          });
+      });
+      it("GET 200, sort_by should title on request and the order should be asc on request", () => {
+        return request(app)
+          .get("/api/articles?sort_by=title&order=asc")
+          .expect(200)
+          .then(result => {
+            expect(result.body.articles).to.be.sortedBy("title", {
+              descending: false
+            });
+          });
+      });
+      it("GET 200, returns all the articles by an author, sort_by should sort by article_id by request and the order should default to descending", () => {
+        return request(app)
+          .get("/api/articles?author=icellusedkars&sort_by=article_id")
+          .expect(200)
+          .then(result => {
+            expect(result.body.articles).to.be.descendingBy("article_id"); //DOES NOT LIKE BEING SORTED BY DATE???????????// its in a string???
+            expect(result.body.articles[0].author).to.equal("icellusedkars");
+          });
+      });
+      it("GET 200, returns an empty array when requesting an author with no articles", () => {
+        return request(app)
+          .get("/api/articles?author=lurker")
+          .expect(200)
+          .then(result => {
+            expect(result.body.articles).to.deep.equal([]);
+          });
+      });
+      it("GET 200, returns all the articles by a topic, sort_by should default to created_at and the order should default to descending", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch")
+          .expect(200)
+          .then(result => {
+            expect(result.body.articles).to.be.descendingBy("created_at");
+            expect(result.body.articles[0].topic).to.equal("mitch");
+          });
+      });
+      it("GET 200, returns an empty array when requesting a topic with no articles", () => {
+        return request(app)
+          .get("/api/articles?topic=paper")
+          .expect(200)
+          .then(result => {
+            expect(result.body.articles).to.deep.equal([]);
+          });
+      });
+    });
+    describe("/articles ERRORS", () => {
+      it("GET 404: should response with a status 404 with msg 'Not Found' when requesting an author that does not exist", () => {
+        return request(app)
+          .get("/api/articles?author=notAValidAuthor")
+          .expect(404)
+          .then(result => {
+            expect(result.body.msg).to.equal("User Not Found");
+          });
+      });
+      it("GET 404: should response with a status 404 with msg 'Not Found' when request a topic that does no exist", () => {
+        return request(app)
+          .get("/api/articles?topic=notAValidAuthor")
+          .expect(404)
+          .then(result => {
+            expect(result.body.msg).to.equal("User Not Found");
+          });
+      });
+      it("GET 400: when given an invalid sort_by column, should respond with 'Bad Request", () => {
+        //PSQL error sorts it
+        return request(app)
+          .get("/api/articles?sort_by=notAValidColumn")
+          .expect(400)
+          .then(result => {
+            expect(result.body.msg).to.equal("Bad Request");
+          });
+      });
+      it("GET 400: when given an invalid order request, should respond with 'Bad Request'", () => {
+        //custom error
+        return request(app)
+          .get("/api/articles?order=notValidOrder")
+          .expect(400)
+          .then(result => {
+            expect(result.body.msg).to.equal("Bad Request");
+          });
+      });
+      it("POST /* :405 when other methods are attempted'", () => {
+        return request(app)
+          .post("/api/articles")
+          .send({ hello: "hello" })
+          .expect(405)
+          .then(result => {
+            expect(result.body.msg).to.equal("Method Not Found");
+          });
+      });
+      it("PATCH /* :405 when other methods are attempted'", () => {
+        return request(app)
+          .patch("/api/articles")
+          .send({ hello: "hello" })
+          .expect(405)
+          .then(result => {
+            expect(result.body.msg).to.equal("Method Not Found");
+          });
+      });
+      it("DELETE /* :405 when other methods are attempted'", () => {
+        return request(app)
+          .delete("/api/articles")
+          .expect(405)
+          .then(result => {
+            expect(result.body.msg).to.equal("Method Not Found");
+          });
+      });
     });
   });
   describe("/:article_id", () => {
@@ -133,6 +281,7 @@ describe("/api", function() {
         return request(app)
           .get("/api/articles/1")
           .then(result => {
+            console.log(result.body);
             expect(result.body.article.comment_count).to.equal(13);
             expect(result.body.article.article_id).to.equal(1);
           });
@@ -199,7 +348,7 @@ describe("/api", function() {
             });
         });
       });
-      describe("GET ERRORS/:article_id/comments", () => {
+      describe.only("GET ERRORS/:article_id/comments", () => {
         it("GET 400: when given an invalid sort_by column, should respond with 'Bad Request", () => {
           return request(app)
             .get("/api/articles/1/comments?sort_by=notAValidColumn")
@@ -232,6 +381,24 @@ describe("/api", function() {
               expect(result.body.msg).to.equal(
                 "Invalid format to request article"
               );
+            });
+        });
+        it("POST /* :405 when other methods are attempted'", () => {
+          return request(app)
+            .put("/api/articles/1")
+            .send({ hello: "hello" })
+            .expect(405)
+            .then(result => {
+              expect(result.body.msg).to.equal("Method Not Found");
+            });
+        });
+
+        it("DELETE /* :405 when other methods are attempted'", () => {
+          return request(app)
+            .delete("/api/articles/1")
+            .expect(405)
+            .then(result => {
+              expect(result.body.msg).to.equal("Method Not Found");
             });
         });
         // it("GET 400: when request an query that does not exist, should respond with 'Invalid query'", () => {
@@ -282,11 +449,19 @@ describe("/api", function() {
               "body",
               "topic",
               "created_at",
-              "votes",
-              "comment_count"
+              "votes"
             );
           });
       });
+      it("PATCH / : when patch req with no send value, it just returns the article of the corresponding id with no changes to vote count", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .then(result => {
+            console.log(result.body);
+            expect(result.body.article.votes).to.equal(100);
+          });
+      });
+      describe("ERROR PATCH >> /articles/:articles_id", () => {});
     });
     describe("/POST", () => {
       it("POST 200 >> /articles/:articles_id/comments >> should return status 200 when successful and return the comment body", () => {
