@@ -8,6 +8,17 @@ const alterVoteReturnComment = (comment_id, newVote) => {
     .returning("*")
     .increment("votes", newVote || 0)
     .then(result => {
+      return !result.length
+        ? Promise.reject({ status: 404, msg: "Not Found" })
+        : result;
+    });
+};
+
+const commentDeleted = comment_id => {
+  return connection
+    .select("*")
+    .from("comments")
+    .then(result => {
       console.log(result);
       return result;
     });

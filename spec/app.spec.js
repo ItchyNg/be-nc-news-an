@@ -296,7 +296,7 @@ describe("/api", function() {
       });
       it("POST /* :405 when other methods are attempted'", () => {
         return request(app)
-          .put("/api/articles/1")
+          .post("/api/articles/1")
           .send({ hello: "hello" })
           .expect(405)
           .then(result => {
@@ -582,8 +582,8 @@ describe("/api", function() {
       });
     });
   });
-  describe("/comments", () => {
-    describe.only("/:comment_id", () => {
+  describe.only("/comments", () => {
+    describe("/:comment_id", () => {
       it("PATCH 200 >> /comments/:comment_id >> will return status 200 when successful and have the required keys", () => {
         const newVote = 10;
 
@@ -617,8 +617,8 @@ describe("/api", function() {
         const newVote = -10;
 
         return request(app)
-          .patch("/api/comments/2") //method & url
-          .send({ inc_votes: newVote }) //body of information sending
+          .patch("/api/comments/2")
+          .send({ inc_votes: newVote })
           .expect(200)
           .then(result => {
             expect(result.body.comment[0].votes).to.equal(4);
@@ -626,10 +626,29 @@ describe("/api", function() {
       });
       it("PATCH 200 / : when patch req with no send value, it just returns the comment of the corresponding id with no changes to vote count", () => {
         return request(app)
-          .patch("/api/comments/2")
+          .patch("/api/comments/1")
           .then(result => {
-            expect(result.body.comment[0].votes).to.equal(14);
+            expect(result.body.comment[0].votes).to.equal(16);
           });
+      });
+      describe("ERROR /:comment_id", () => {
+        it("PATCH 404 / : when requesting a patch to a comment that doesnt exist it will return a messege with 'Not Found'", () => {
+          return request(app)
+            .patch("/api/comments/100000")
+            .expect(404)
+            .then(result => {
+              expect(result.body.msg).to.equal("Not Found");
+            });
+        });
+        it("POST /* :405 when other methods are attempted'", () => {
+          return request(app)
+            .post("/api/comments/1")
+            .send({ hello: "hello" })
+            .expect(405)
+            .then(result => {
+              expect(result.body.msg).to.equal("Method Not Found");
+            });
+        });
       });
     });
   });
