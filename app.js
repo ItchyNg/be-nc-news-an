@@ -14,7 +14,7 @@ app.use((err, req, res, next) => {
   //error handler
   const psqlErr = {
     "42703": [400, "Bad Request"],
-    "22P02": [400, "Invalid format to request article"]
+    "22P02": [400, "Bad Request"]
   };
   if (err.status)
     res.status(err.status).send({ msg: err.msg || "Bad Request" }); //  if CUSTOM ERROR MSG

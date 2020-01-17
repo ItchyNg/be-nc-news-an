@@ -50,16 +50,14 @@ exports.getCommentById = (req, res, next) => {
   // if (allQuery) {
   //   for (let keys in allQuery) {
   //     if (keys !== order || keys !== sort_by) {
-  //       console.log("nope");
+  //
   //     }
   //   }
   // }
 
-  // console.log(x);
-
   selectCommentById(order, article_id, sort_by)
     .then(result => {
-      res.status(200).send({ comments: result });
+      res.status(200).send({ comment: result });
     })
     .catch(function(err) {
       next(err);
@@ -74,7 +72,6 @@ exports.getAllArticles = (req, res, next) => {
       res.status(200).send({ articles: result });
     })
     .catch(function(err) {
-      console.log(err, "controller error");
       next(err);
     });
 };

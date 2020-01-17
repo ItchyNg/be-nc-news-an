@@ -15,16 +15,11 @@ const alterVoteReturnComment = (comment_id, newVote) => {
 };
 
 const commentDeleted = comment_id => {
-  return (
-    connection
-      .select("*")
-      .from("comments")
-      //.where("comment_id", comment_id)
-      .then(result => {
-        // console.log(result);
-        return result;
-      })
-  );
+  return connection
+    .select("*")
+    .from("comments")
+    .where("comment_id", comment_id)
+    .del();
 };
 
 module.exports = { alterVoteReturnComment, commentDeleted };

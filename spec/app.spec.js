@@ -67,17 +67,13 @@ describe("/api", function() {
     });
   });
   describe("/users", () => {
-    it("GET /users/:username will respond with status 200", () => {
+    it("GET 200 /users/:username will respond with status 200 and an array of objects with the required keys (username, avatar_url, name)", () => {
       return request(app)
         .get("/api/users/lurker")
-        .expect(200);
-    });
-    it("GET /users/:username will return an array of objects with the required keys (username, avatar_url, name)", () => {
-      return request(app)
-        .get("/api/users/lurker")
+        .expect(200)
         .then(result => {
-          expect(result.body.username).to.be.an("object");
-          expect(result.body.username).to.have.keys(
+          expect(result.body.user).to.be.an("object");
+          expect(result.body.user).to.have.keys(
             "username",
             "avatar_url",
             "name"
@@ -92,7 +88,34 @@ describe("/api", function() {
           expect(errorResponse.body.msg).to.equal("Not a valid user");
         });
     });
+    it("PATCH /* :405 when other methods are attempted'", () => {
+      return request(app)
+        .patch("/api/users/lurker")
+        .send({ hello: "hello" })
+        .expect(405)
+        .then(result => {
+          expect(result.body.msg).to.equal("Method Not Found");
+        });
+    });
+    it("POST /* :405 when other methods are attempted'", () => {
+      return request(app)
+        .put("/api/users/lurker")
+        .send({ hello: "hello" })
+        .expect(405)
+        .then(result => {
+          expect(result.body.msg).to.equal("Method Not Found");
+        });
+    });
+    it("DELETE /* :405 when other methods are attempted'", () => {
+      return request(app)
+        .delete("/api/users/lurker")
+        .expect(405)
+        .then(result => {
+          expect(result.body.msg).to.equal("Method Not Found");
+        });
+    });
   });
+
   describe("/articles", () => {
     describe("/articles GET", () => {
       it("GET 200, will return status 200 when successful, be an array of objects and have the appropriate keys", () => {
@@ -310,15 +333,15 @@ describe("/api", function() {
             expect(result.body.msg).to.equal("Method Not Found");
           });
       });
-      describe("GET/:article_id/comments", () => {
+      describe.only("GET/:article_id/comments", () => {
         it("GET 200 >> /articles/:articles_id/comments >> should return status 200 when successful , in the correct format including the appropriate key columns", () => {
           return request(app)
             .get("/api/articles/5/comments")
             .expect(200)
             .then(result => {
-              expect(result.body.comments).to.be.an("array");
-              expect(result.body.comments.length).to.equal(2);
-              expect(result.body.comments[0]).to.have.keys(
+              expect(result.body.comment).to.be.an("array");
+              expect(result.body.comment.length).to.equal(2);
+              expect(result.body.comment[0]).to.have.keys(
                 "author",
                 "comment_id",
                 "body",
@@ -331,7 +354,7 @@ describe("/api", function() {
           return request(app)
             .get("/api/articles/1/comments")
             .then(result => {
-              expect(result.body.comments).to.be.sortedBy("created_at", {
+              expect(result.body.comment).to.be.sortedBy("created_at", {
                 descending: true
               });
             });
@@ -340,7 +363,7 @@ describe("/api", function() {
           return request(app)
             .get("/api/articles/1/comments?order=asc")
             .then(result => {
-              expect(result.body.comments).to.be.sortedBy("created_at", {
+              expect(result.body.comment).to.be.sortedBy("created_at", {
                 descending: false
               });
             });
@@ -349,7 +372,7 @@ describe("/api", function() {
           return request(app)
             .get("/api/articles/1/comments?sorted_by=comment_id")
             .then(result => {
-              expect(result.body.comments).to.be.sortedBy("comment_id", {
+              expect(result.body.comment).to.be.sortedBy("comment_id", {
                 descending: false
               });
             });
@@ -358,7 +381,7 @@ describe("/api", function() {
           return request(app)
             .get("/api/articles/1/comments?order=asc&&sort_by=comment_id")
             .then(result => {
-              expect(result.body.comments).to.be.sortedBy("comment_id", {
+              expect(result.body.comment).to.be.sortedBy("comment_id", {
                 descending: false
               });
             });
@@ -367,7 +390,7 @@ describe("/api", function() {
           return request(app)
             .get("/api/articles/2/comments")
             .then(result => {
-              expect(result.body.comments).to.deep.equal([]);
+              expect(result.body.comment).to.deep.equal([]);
             });
         });
       });
@@ -396,14 +419,12 @@ describe("/api", function() {
               expect(result.body.msg).to.equal("Article not found");
             });
         });
-        it("GET 400: when request an article in the wrong format, should respond with 'Invalid format to request article'", () => {
+        it("GET 400: when request an article in the wrong format, should respond with 'Bad Request'", () => {
           return request(app)
             .get("/api/articles/oneone/comments")
             .expect(400)
             .then(result => {
-              expect(result.body.msg).to.equal(
-                "Invalid format to request article"
-              );
+              expect(result.body.msg).to.equal("Bad Request");
             });
         });
         it("POST /* :405 when other methods are attempted'", () => {
@@ -579,7 +600,7 @@ describe("/api", function() {
       });
     });
   });
-  describe.only("/comments", () => {
+  describe("/comments", () => {
     describe("/:comment_id", () => {
       it("PATCH 200 >> /comments/:comment_id >> will return status 200 when successful and have the required keys", () => {
         const newVote = 10;
@@ -628,18 +649,16 @@ describe("/api", function() {
             expect(result.body.comment[0].votes).to.equal(16);
           });
       });
-      // it('"DELETE 204', () => {
-      //   return request(app)
-      //     .delete("/api/comments/1")
-      //     .expect(204)
-      //     .then(result => {
-      //       console.log(result);
-
-      //       return result;
-      //     });
-      // });
+      it("DELETE 204 / :  returns status 204 when the delete request is successful and return the message 'No Content'", () => {
+        return request(app)
+          .delete("/api/comments/2")
+          .expect(204)
+          .then(result => {
+            expect(result.res.statusMessage).to.equal("No Content");
+          });
+      });
       describe("ERROR /:comment_id", () => {
-        it("PATCH 404 / : when requesting a patch to a comment that doesnt exist it will return a messege with 'Not Found'", () => {
+        it("PATCH 404 / : when requesting a patch to a comment that doesnt exist it will return a message with 'Not Found'", () => {
           return request(app)
             .patch("/api/comments/100000")
             .expect(404)
@@ -654,6 +673,14 @@ describe("/api", function() {
             .expect(405)
             .then(result => {
               expect(result.body.msg).to.equal("Method Not Found");
+            });
+        });
+        it("DELETE /* :400 return status when'", () => {
+          return request(app)
+            .delete("/api/comments/notANumber")
+            .expect(400)
+            .then(result => {
+              expect(result.body.msg).to.equal("Bad Request");
             });
         });
       });

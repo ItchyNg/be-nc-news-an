@@ -19,7 +19,7 @@ exports.deleteCommentById = (req, res, next) => {
   const { comment_id } = req.params;
   commentDeleted(comment_id)
     .then(result => {
-      res.status(200).send({ comment: result });
+      res.status(204).send();
     })
     .catch(function(err) {
       next(err);

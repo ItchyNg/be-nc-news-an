@@ -5,7 +5,7 @@ exports.getUsernameById = (req, res, next) => {
 
   selectUsernameById(username)
     .then(resultUserById => {
-      res.status(200).send({ username: resultUserById });
+      res.status(200).send({ user: resultUserById });
     })
     .catch(function(err) {
       next(err);
