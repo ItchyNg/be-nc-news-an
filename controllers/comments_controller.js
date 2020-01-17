@@ -5,7 +5,10 @@ const {
 
 exports.amendVoteByCommentId = (req, res, next) => {
   const { comment_id } = req.params;
-  const newVote = req.body.inc_votes;
+  // const newVote =
+  //   typeof req.body.inc_votes == "number" ? req.body.inc_votes : 0;
+  // console.log(newVote); //forgot
+
   alterVoteReturnComment(comment_id, newVote)
     .then(result => {
       res.status(200).send({ comment: result });

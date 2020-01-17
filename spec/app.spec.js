@@ -308,8 +308,7 @@ describe("/api", function() {
       });
     });
     describe("ERROR /:article_id", () => {
-      it("GET 404 / : will return status when article is not found", () => {});
-      it("GET /articles/:articles_id will respond with just the article_id searched for", () => {
+      it("GET 404 / : will return status when article is not found", () => {
         return request(app)
           .get("/api/articles/10000")
           .expect(404)
@@ -342,9 +341,9 @@ describe("/api", function() {
             .get("/api/articles/5/comments")
             .expect(200)
             .then(result => {
-              expect(result.body.comment).to.be.an("array");
-              expect(result.body.comment.length).to.equal(2);
-              expect(result.body.comment[0]).to.have.keys(
+              expect(result.body.comments).to.be.an("array");
+              expect(result.body.comments.length).to.equal(2);
+              expect(result.body.comments[0]).to.have.keys(
                 "author",
                 "comment_id",
                 "body",
@@ -357,7 +356,7 @@ describe("/api", function() {
           return request(app)
             .get("/api/articles/1/comments")
             .then(result => {
-              expect(result.body.comment).to.be.sortedBy("created_at", {
+              expect(result.body.comments).to.be.sortedBy("created_at", {
                 descending: true
               });
             });
@@ -366,7 +365,7 @@ describe("/api", function() {
           return request(app)
             .get("/api/articles/1/comments?order=asc")
             .then(result => {
-              expect(result.body.comment).to.be.sortedBy("created_at", {
+              expect(result.body.comments).to.be.sortedBy("created_at", {
                 descending: false
               });
             });
@@ -375,7 +374,7 @@ describe("/api", function() {
           return request(app)
             .get("/api/articles/1/comments?sorted_by=comment_id")
             .then(result => {
-              expect(result.body.comment).to.be.sortedBy("comment_id", {
+              expect(result.body.comments).to.be.sortedBy("comment_id", {
                 descending: false
               });
             });
@@ -384,7 +383,7 @@ describe("/api", function() {
           return request(app)
             .get("/api/articles/1/comments?order=asc&&sort_by=comment_id")
             .then(result => {
-              expect(result.body.comment).to.be.sortedBy("comment_id", {
+              expect(result.body.comments).to.be.sortedBy("comment_id", {
                 descending: false
               });
             });
@@ -393,7 +392,7 @@ describe("/api", function() {
           return request(app)
             .get("/api/articles/2/comments")
             .then(result => {
-              expect(result.body.comment).to.deep.equal([]);
+              expect(result.body.comments).to.deep.equal([]);
             });
         });
       });
@@ -507,9 +506,19 @@ describe("/api", function() {
             expect(result.body.article.votes).to.equal(100);
           });
       });
-      describe("ERROR PATCH >> /articles/:articles_id", () => {});
+      describe("ERROR PATCH >> /articles/:articles_id", () => {
+        it("PATCH 404 / : when requesting a patch to a comment that doesnt exist it will return a message with 'Not Found'", () => {
+          return request(app)
+            .patch("/api/articles/1000000")
+            .send({ inc_votes: 10 })
+            .expect(404)
+            .then(result => {
+              expect(result.body.msg).to.equal("Not Found");
+            });
+        });
+      });
     });
-    describe("/POST", () => {
+    describe.only("/POST", () => {
       it("POST 201 >> /articles/:articles_id/comments >> should return status 200 when successful and return the comment body", () => {
         const objComment = {
           username: "butter_bridge",
@@ -521,7 +530,7 @@ describe("/api", function() {
           .send(objComment)
           .then(result => {
             expect(result.body).to.be.an("object");
-            expect(result.body.newComment).to.have.keys(
+            expect(result.body.comment).to.have.keys(
               "comment_id",
               "author",
               "article_id",
@@ -529,7 +538,7 @@ describe("/api", function() {
               "created_at",
               "body"
             );
-            expect(result.body.newComment.body).to.equal(
+            expect(result.body.comment.body).to.equal(
               "I give this 10 out of 10!"
             );
           });
@@ -583,7 +592,7 @@ describe("/api", function() {
           .expect(201)
           .send(objComment)
           .then(result => {
-            expect(result.body.newComment.body).to.equal(
+            expect(result.body.comment.body).to.equal(
               "I give this 10 out of 10!"
             );
           });

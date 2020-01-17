@@ -1,15 +1,6 @@
 const connection = require("../db/connection");
 
-// const article = article_id => {
-//   return connection
-//     .select("*")
-//     .from("articles")
-//     .where("article_id", article_id)
-//     .then(result => {
-//       return result;
-//     });
-// };
-
+// GET/articles/:article_id
 const selectArticleById = article_id => {
   return connection
     .select("articles.*")
@@ -22,11 +13,11 @@ const selectArticleById = article_id => {
       if (!result.length) {
         return Promise.reject({ status: 404, msg: "Not Found" });
       }
-      result[0].comment_count = +result[0].comment_count;
       return result[0];
     });
 };
 
+// PATCH /aticles/:article_id
 const changeArticleVotes = (article_id, patchVote) => {
   // return selectArticleById(article_id).increment("votes", patchVote) });
   // return selectArticleById(article_id).then(result => {
@@ -41,10 +32,14 @@ const changeArticleVotes = (article_id, patchVote) => {
     .returning("*")
     .increment("votes", patchVote || 0)
     .then(result => {
+      if (!result.length) {
+        return Promise.reject({ status: 404, msg: "Not Found" });
+      }
       return result[0];
     });
 };
 
+//POST /articles/:article_id/comments
 const submittedCommentById = (article_id, usernameAndComment) => {
   const newComment = {
     author: usernameAndComment.username,
@@ -84,6 +79,7 @@ const submittedCommentById = (article_id, usernameAndComment) => {
   //     });
 };
 
+//GET /articles/:article_id/comments
 const selectCommentById = (order, article_id, sort_by) => {
   return connection
     .select("*")
@@ -110,6 +106,7 @@ const selectCommentById = (order, article_id, sort_by) => {
     });
 };
 
+//GET /articles
 const fetchAllArticles = query => {
   return (
     connection
