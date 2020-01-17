@@ -1,5 +1,6 @@
 const connection = require("../db/connection");
 
+// PATCH /comments/:comment_id
 const alterVoteReturnComment = (comment_id, newVote) => {
   return connection
     .select("*")
@@ -14,6 +15,7 @@ const alterVoteReturnComment = (comment_id, newVote) => {
     });
 };
 
+// DELETE /comments/:comment_id
 const commentDeleted = comment_id => {
   return connection
     .select("*")

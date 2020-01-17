@@ -518,7 +518,7 @@ describe("/api", function() {
         });
       });
     });
-    describe.only("/POST", () => {
+    describe("/POST", () => {
       it("POST 201 >> /articles/:articles_id/comments >> should return status 200 when successful and return the comment body", () => {
         const objComment = {
           username: "butter_bridge",
@@ -612,16 +612,16 @@ describe("/api", function() {
       });
     });
   });
-  describe("/comments", () => {
+  describe.only("/comments", () => {
     describe("/:comment_id", () => {
       it("PATCH 200 >> /comments/:comment_id >> will return status 200 when successful and have the required keys", () => {
         const newVote = 10;
-
         return request(app)
           .patch("/api/comments/2") //method & url
           .send({ inc_votes: newVote }) //body of information sending
           .expect(200)
           .then(result => {
+            console.log(result.body.comment);
             expect(result.body.comment[0]).to.have.keys(
               "comment_id",
               "author",
@@ -652,6 +652,15 @@ describe("/api", function() {
           .expect(200)
           .then(result => {
             expect(result.body.comment[0].votes).to.equal(4);
+          });
+      });
+      it("PATCH 200 >> /comments/:comment_id >> when trying to patch with something that isn't a number, it will ignore and not increment", () => {
+        return request(app)
+          .patch("/api/comments/2")
+          .send({ inc_votes: "notANumber" })
+          .expect(200)
+          .then(result => {
+            expect(result.body.comment[0].votes).to.equal(14);
           });
       });
       it("PATCH 200 / : when patch req with no send value, it just returns the comment of the corresponding id with no changes to vote count", () => {
