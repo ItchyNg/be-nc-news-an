@@ -20,6 +20,14 @@ describe("/api", function() {
         expect(errorResult.body.msg).to.equal("Route Not Found");
       });
   });
+  it("405: Invalid method, we are testing for methods from the /api that are not valid", () => {
+    return request(app)
+      .delete("/api")
+      .expect(405)
+      .then(result => {
+        expect(result.body.msg).to.equal("Method Not Found");
+      });
+  });
   describe("/topics", () => {
     it("GET /: will return status 200 and an array of objects with the required keys (description, slug)", () => {
       return request(app)
