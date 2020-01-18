@@ -23,7 +23,11 @@ exports.deleteCommentById = (req, res, next) => {
   const { comment_id } = req.params;
   commentDeleted(comment_id)
     .then(result => {
-      res.status(204).send();
+      if (result !== 0) {
+        res.status(204).send();
+      } else {
+        res.status(404).send({ msg: "Not Found" });
+      }
     })
     .catch(function(err) {
       next(err);

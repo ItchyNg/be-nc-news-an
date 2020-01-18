@@ -302,7 +302,7 @@ describe("/api", function() {
         return request(app)
           .get("/api/articles/1")
           .then(result => {
-            expect(result.body.article.comment_count).to.equal(13);
+            expect(result.body.article.comment_count).to.equal("13"); // originally set it to be a number but feedback test wanted a string...
             expect(result.body.article.article_id).to.equal(1);
           });
       });
@@ -612,7 +612,7 @@ describe("/api", function() {
       });
     });
   });
-  describe.only("/comments", () => {
+  describe("/comments", () => {
     describe("/:comment_id", () => {
       it("PATCH 200 >> /comments/:comment_id >> will return status 200 when successful and have the required keys", () => {
         const newVote = 10;
@@ -621,7 +621,6 @@ describe("/api", function() {
           .send({ inc_votes: newVote }) //body of information sending
           .expect(200)
           .then(result => {
-            console.log(result.body.comment);
             expect(result.body.comment[0]).to.have.keys(
               "comment_id",
               "author",
@@ -702,6 +701,14 @@ describe("/api", function() {
             .expect(400)
             .then(result => {
               expect(result.body.msg).to.equal("Bad Request");
+            });
+        });
+        it("DELETE 404 / :  returns status 404 when the delete request is made for an article that does not exist, it will return the message 'Not Found'", () => {
+          return request(app)
+            .delete("/api/comments/5434453")
+            .expect(404)
+            .then(result => {
+              expect(result.body.msg).to.equal("Not Found");
             });
         });
       });
