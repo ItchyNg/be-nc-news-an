@@ -6,8 +6,8 @@ const {
 // PATCH /comments/:comment_id
 exports.amendVoteByCommentId = (req, res, next) => {
   const { comment_id } = req.params;
-  const newVote =
-    typeof req.body.inc_votes == "number" ? req.body.inc_votes : 0;
+  const newVote = req.body.inc_votes;
+  // typeof req.body.inc_votes == "number" ? req.body.inc_votes : 0; // this would ignore the invalid inc_vote rather than erroring out
 
   alterVoteReturnComment(comment_id, newVote)
     .then(result => {

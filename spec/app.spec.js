@@ -637,7 +637,7 @@ describe("/api", function() {
           .send({ inc_votes: newVote }) //body of information sending
           .expect(200)
           .then(result => {
-            expect(result.body.comment[0]).to.have.keys(
+            expect(result.body.comment).to.have.keys(
               "comment_id",
               "author",
               "article_id",
@@ -655,7 +655,7 @@ describe("/api", function() {
           .send({ inc_votes: newVote }) //body of information sending
           .expect(200)
           .then(result => {
-            expect(result.body.comment[0].votes).to.equal(24);
+            expect(result.body.comment.votes).to.equal(24);
           });
       });
       it("PATCH 200 >> /comments/:comment_id >> the comment with the vote count decreased by the correct amount", () => {
@@ -666,23 +666,23 @@ describe("/api", function() {
           .send({ inc_votes: newVote })
           .expect(200)
           .then(result => {
-            expect(result.body.comment[0].votes).to.equal(4);
+            expect(result.body.comment.votes).to.equal(4);
           });
       });
       it("PATCH 200 >> /comments/:comment_id >> when trying to patch with something that isn't a number, it will ignore and not increment", () => {
         return request(app)
           .patch("/api/comments/2")
           .send({ inc_votes: "notANumber" })
-          .expect(200)
+          .expect(400)
           .then(result => {
-            expect(result.body.comment[0].votes).to.equal(14);
+            expect(result.body.msg).to.equal("Bad Request");
           });
       });
       it("PATCH 200 / : when patch req with no send value, it just returns the comment of the corresponding id with no changes to vote count", () => {
         return request(app)
           .patch("/api/comments/1")
           .then(result => {
-            expect(result.body.comment[0].votes).to.equal(16);
+            expect(result.body.comment.votes).to.equal(16);
           });
       });
       it("DELETE 204 / :  returns status 204 when the delete request is successful and return the message 'No Content'", () => {

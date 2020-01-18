@@ -11,7 +11,7 @@ const alterVoteReturnComment = (comment_id, newVote) => {
     .then(result => {
       return !result.length
         ? Promise.reject({ status: 404, msg: "Not Found" })
-        : result;
+        : result[0];
     });
 };
 
