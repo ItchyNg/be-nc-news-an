@@ -12,6 +12,14 @@ describe("/api", function() {
   this.timeout(15000);
   beforeEach(() => connection.seed.run());
   after(() => connection.destroy());
+  // it("200: returns status 200 when successful and an object with api descriptions", () => {
+  //   return request(app)
+  //     .get("/api")
+  //     .expect(200)
+  //     .then(result => {
+  //       expect(result).to.be.an("object");
+  //     });
+  // });
   it("404: Invalid route, we are testing for routes that are not valid", () => {
     return request(app)
       .get("/api/invalidRoute")
