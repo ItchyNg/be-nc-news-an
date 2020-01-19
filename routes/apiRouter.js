@@ -6,7 +6,7 @@ const commentsRouter = require("./commentsRouter");
 // const getApiDescription = require("../controllers/api_controller");
 const { send405Error } = require("../errors/index");
 const endpoints = require("../endpoints.json");
-const apiDescription = JSON.parse(endpoints, null, 2);
+const apiDescription = JSON.stringify(endpoints, null, 2);
 
 apiRouter.get("/", function(req, res, next) {
   res.status(200).send({ api: apiDescription });
