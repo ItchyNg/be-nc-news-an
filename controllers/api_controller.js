@@ -1,6 +1,8 @@
-const apiDescription = require("../endpoints.json");
+const endpoints = require("../endpoints.json");
 
-console.log(apiDescription);
+const stringy = JSON.stringify(endpoints);
+
+console.log(stringy);
 
 exports.getApiDescription = (req, res, next) => {
   res.status(200).send({ api: apiDescription });
