@@ -1,13 +1,10 @@
 const express = require("express");
 const app = express();
 const apiRouter = require("./routes/apiRouter");
-const { PORT = 9090 } = process.env; //added for server
 
 app.use(express.json());
 
 app.use("/api", apiRouter);
-
-app.listen(PORT, () => console.log(`Listening on ${PORT}...`)); //added for server
 
 app.get("/", function(req, res) {
   res.send("hello world");
