@@ -6,9 +6,7 @@ const commentsRouter = require("./commentsRouter");
 // const getApiDescription = require("../controllers/api_controller");
 const { send405Error } = require("../errors/index");
 
-apiRouter.get("/", function(req, res, next) {
-  res.send("Insert API here");
-});
+apiRouter.get("/", getApiDescription);
 
 apiRouter.use("/topics", topicsRouter);
 
