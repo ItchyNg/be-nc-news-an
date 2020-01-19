@@ -6,6 +6,10 @@ app.use(express.json());
 
 app.use("/api", apiRouter);
 
+app.get("/", function(req, res) {
+  res.send("hello world");
+});
+
 app.all("/*", (req, res, next) =>
   next({ status: 404, msg: "Route Not Found" })
 ); // Errors for all other routes not stated above
