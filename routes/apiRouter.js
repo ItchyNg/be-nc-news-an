@@ -3,7 +3,7 @@ const topicsRouter = require("../routes/topicsRouter");
 const usersRouter = require("./usersRouter");
 const articlesRouter = require("./articlesRouter");
 const commentsRouter = require("./commentsRouter");
-// const getApiDescription = require("../controllers/api_controller");
+const getApiDescription = require("../controllers/api_controller");
 const { send405Error } = require("../errors/index");
 
 apiRouter.get("/", getApiDescription);
