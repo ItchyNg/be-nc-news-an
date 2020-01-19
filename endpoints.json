@@ -9,19 +9,148 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  "GET /api/users/:username": {
+    "description": "serves an object of the user by their username",
+    "queries": [],
+    "exampleResponse": {
+      "users": {
+        "username": "tickle122",
+        "avatar_url": "https://www.spiritsurfers.net/monastery/wp-content/uploads/_41500270_mrtickle.jpg",
+        "name": "Tom Tickle"
+      }
+    }
+  },
   "GET /api/articles": {
-    "description": "serves an array of all topics",
+    "description": "serves an array of all articles",
     "queries": ["author", "topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
         {
           "title": "Seafood substitutions are increasing",
-          "topic": "cooking",
           "author": "weegembump",
-          "body": "Text from the article..",
-          "created_at": 1527695953341
+          "article_id": 33,
+          "topic": "cooking",
+          "created_at": "2018-05-30T15:59:13.341Z",
+          "votes": 0,
+          "comment_count": "6"
+        },
+        {
+          "title": "High Altitude Cooking",
+          "author": "happyamy2016",
+          "article_id": 28,
+          "topic": "cooking",
+          "created_at": "2018-05-27T03:32:28.514Z",
+          "votes": 0,
+          "comment_count": "5"
+        },
+        {
+          "title": "Twice-Baked Butternut Squash Is the Thanksgiving Side Dish of Your Dreams",
+          "author": "jessjelly",
+          "article_id": 30,
+          "topic": "cooking",
+          "created_at": "2018-05-06T02:40:35.489Z",
+          "votes": 0,
+          "comment_count": "8"
         }
       ]
+    }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves an object of an article by their article id",
+    "queries": [],
+    "exampleResponse": {
+      "articles": [
+        {
+          "author": "jessjelly",
+          "title": "Running a Node App",
+          "article_id": 1,
+          "body": "This is part two of a series on how to get up and running with Systemd and Node.js. This part dives deeper into how to successfully run your app with systemd long-term, and how to set it up in a production environment.",
+          "topic": "coding",
+          "created_at": "2016-08-18T12:07:52.389Z",
+          "votes": 0,
+          "comment_count": 8
+        }
+      ]
+    }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "increases the vote number by a determined amount in relation to a specific article, this will return the updated article in an object for example {ince_votes: 1} will increase the current article's vote property by 1",
+    "request body accepts": { "inc_votes": "newVotes" },
+    "exampleResponse": {
+      "articles": [
+        {
+          "author": "jessjelly",
+          "title": "Running a Node App",
+          "article_id": 1,
+          "body": "This is part two of a series on how to get up and running with Systemd and Node.js. This part dives deeper into how to successfully run your app with systemd long-term, and how to set it up in a production environment.",
+          "topic": "coding",
+          "created_at": "2016-08-18T12:07:52.389Z",
+          "votes": 1,
+          "comment_count": 8
+        }
+      ]
+    }
+  },
+  "GET/api/articles/:article_id/comments": {
+    "description": "this responds with an array of comments for the given article_id",
+    "queries": ["sort_by", "order"],
+    "exampleResponse": {
+      "articles": [
+        {
+          "comment_id": 70,
+          "votes": 2,
+          "created_at": "2018-01-29T06:21:22.610Z",
+          "author": "grumpy19",
+          "body": "Et ullam nihil repudiandae facere sunt cupiditate cum. Doloremque voluptatem rerum qui error omnis. Dolorum numquam dolorum voluptas ad."
+        },
+        {
+          "comment_id": 146,
+          "votes": 6,
+          "created_at": "2018-01-03T22:36:49.051Z",
+          "author": "jessjelly",
+          "body": "Soluta autem fuga non alias. Odit eligendi voluptas reiciendis repudiandae reiciendis doloribus adipisci qui consequuntur. Et dignissimos unde optio. Recusandae aspernatur eius error. Eos autem et iusto sunt fuga ipsam omnis voluptatem rerum."
+        }
+      ]
+    }
+  },
+  "POST/api/articles/:article_id/comments": {
+    "description": "this will accept an object with the following properties {username: 'username', body: 'body'} and post it into the article by the id. IT will then return the posted comment",
+    "request body accepts": {
+      "username": "grumpy19",
+      "body": "body text here"
+    },
+    "exampleResponse": {
+      "articles": {
+        "comment_id": 44,
+        "votes": 0,
+        "created_at": "2017-11-20T08:58:48.322Z",
+        "author": "grumpy19",
+        "body": "body text here"
+      }
+    }
+  },
+  "PATCH/api/comments/:comment_id": {
+    "description": "increases the vote number by a determined amount in relation to a specific article, this will return the updated comment in an object for example {ince_votes: 1} will increase the current acomment vote property by 1",
+    "request body accepts": {
+      "inc_votes": "newVotes"
+    },
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 1,
+        "author": "bob",
+        "article_id": 4,
+        "votes": 1,
+        "created_at": "2018-01-29T06:21:22.610Z",
+        "body": "I liked this"
+      }
+    }
+  },
+  "DELETE/api/comments/:comment_id": {
+    "description": "should delete a comment by the comment_id",
+    "queries": [],
+    "exampleResponse": {
+      "status": 200,
+      "msg": "No Content"
     }
   }
 }
