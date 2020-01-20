@@ -7,9 +7,10 @@ const commentsRouter = require("./commentsRouter");
 const { send405Error } = require("../errors/index");
 const endpoints = require("../endpoints.json");
 const apiDescription = JSON.stringify(endpoints, undefined, 4);
+const x = JSON.parse(apiDescription);
 
 apiRouter.get("/", function(req, res, next) {
-  res.status(200).send({ API_GUIDE: apiDescription });
+  res.status(200).send({ API_GUIDE: x });
 });
 
 apiRouter.use("/topics", topicsRouter);
