@@ -8,7 +8,8 @@ exports.up = function(knex) {
     commentsTable
       .integer("article_id")
       .references("articles.article_id")
-      .notNullable(); //should reference articles primary key
+      .notNullable() //should reference articles primary key
+      .onDelete("CASCADE"); // Deletes all comments when the article they are related to is deleted
     commentsTable
       .integer("votes")
       .defaultTo(0)

@@ -2,23 +2,40 @@ const articlesRouter = require("express").Router();
 const {
   getArticleById,
   patchArticleVotesById,
-  postCommentById,
-  getCommentById,
+  postCommentByArticleId,
+  getCommentsByArticleId,
   getAllArticles
 } = require("../controllers/articles_controller");
 
 const { send405Error } = require("../errors/index");
 
-articlesRouter.get("/:article_id", getArticleById);
+articlesRouter
+  .route("/:article_id")
+  .get(getArticleById)
+  .patch(patchArticleVotesById)
+  .all(send405Error);
 
-articlesRouter.patch("/:article_id", patchArticleVotesById);
+// articlesRouter.get("/:article_id", getArticleById);
 
-articlesRouter.post("/:article_id/comments", postCommentById);
+// articlesRouter.patch("/:article_id", patchArticleVotesById);
 
-articlesRouter.get("/:article_id/comments", getCommentById);
+articlesRouter
+  .route("/:article_id/comments")
+  .get(getCommentsByArticleId)
+  .post(postCommentByArticleId)
+  .all(send405Error);
 
-articlesRouter.get("/", getAllArticles);
+// articlesRouter.post("/:article_id/comments", postCommentById);
 
-articlesRouter.all("/*", send405Error);
+// articlesRouter.get("/:article_id/comments", getCommentById);
+
+articlesRouter
+  .route("/")
+  .get(getAllArticles)
+  .all(send405Error);
+
+// articlesRouter.get("/", getAllArticles);
+
+// articlesRouter.all("/*", send405Error);
 
 module.exports = articlesRouter;

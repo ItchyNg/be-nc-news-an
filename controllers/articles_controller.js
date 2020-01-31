@@ -1,8 +1,8 @@
 const {
   selectArticleById,
   changeArticleVotes,
-  submittedCommentById,
-  selectCommentById,
+  submittedCommentByArticleId,
+  selectCommentsByArticleId,
   fetchAllArticles
 } = require("../models/articles_model");
 
@@ -33,10 +33,10 @@ exports.patchArticleVotesById = (req, res, next) => {
 };
 
 //POST /articles/:article_id/comments
-exports.postCommentById = (req, res, next) => {
+exports.postCommentByArticleId = (req, res, next) => {
   const { article_id } = req.params;
   const usernameAndComment = req.body;
-  submittedCommentById(article_id, usernameAndComment)
+  submittedCommentByArticleId(article_id, usernameAndComment)
     .then(result => {
       res.status(201).send({ comment: result });
     })
@@ -46,7 +46,7 @@ exports.postCommentById = (req, res, next) => {
 };
 
 //GET /articles/:article_id/comments
-exports.getCommentById = (req, res, next) => {
+exports.getCommentsByArticleId = (req, res, next) => {
   const article_id = req.params.article_id;
   const order = req.query.order;
   const sort_by = req.query.sort_by;
@@ -59,7 +59,7 @@ exports.getCommentById = (req, res, next) => {
   //   }
   // }
 
-  selectCommentById(order, article_id, sort_by)
+  selectCommentsByArticleId(order, article_id, sort_by)
     .then(result => {
       res.status(200).send({ comments: result });
     })

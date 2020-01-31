@@ -6,10 +6,16 @@ const {
 
 const { send405Error } = require("../errors/index");
 
-commentsRouter.patch("/:comment_id", amendVoteByCommentId);
+commentsRouter
+  .route("/:comment_id")
+  .patch(amendVoteByCommentId)
+  .delete(deleteCommentById)
+  .all(send405Error);
 
-commentsRouter.delete("/:comment_id", deleteCommentById);
+// commentsRouter.patch("/:comment_id", amendVoteByCommentId);
 
-commentsRouter.all("/*", send405Error);
+// commentsRouter.delete("/:comment_id", deleteCommentById);
+
+// commentsRouter.all("/*", send405Error);
 
 module.exports = commentsRouter;

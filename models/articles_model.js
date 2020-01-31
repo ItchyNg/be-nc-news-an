@@ -40,7 +40,7 @@ const changeArticleVotes = (article_id, patchVote) => {
 };
 
 //POST /articles/:article_id/comments
-const submittedCommentById = (article_id, usernameAndComment) => {
+const submittedCommentByArticleId = (article_id, usernameAndComment) => {
   const newComment = {
     author: usernameAndComment.username,
     article_id: article_id,
@@ -70,17 +70,10 @@ const submittedCommentById = (article_id, usernameAndComment) => {
     .then(result => {
       return result[0];
     });
-  //   return connection("comments")
-  //     .insert(newComment)
-  //     .returning("*")
-  //     .then(result => {
-  //       // console.log(result, "results in here!!!!<!<!!<");
-  //       return result[0];
-  //     });
 };
 
 //GET /articles/:article_id/comments
-const selectCommentById = (order, article_id, sort_by) => {
+const selectCommentsByArticleId = (order, article_id, sort_by) => {
   return connection
     .select("*")
     .from("articles")
@@ -172,12 +165,12 @@ const fetchAllArticles = query => {
         }
       })
   );
-}; //done!!!!
+};
 
 module.exports = {
   selectArticleById,
   changeArticleVotes,
-  submittedCommentById,
-  selectCommentById,
+  submittedCommentByArticleId,
+  selectCommentsByArticleId,
   fetchAllArticles
 };

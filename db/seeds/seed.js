@@ -31,5 +31,4 @@ exports.seed = function(knex) {
 
       return knex("comments").insert(formattedComments);
     });
-  // .catch(console.log);
 };
