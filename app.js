@@ -6,6 +6,9 @@ const {
   customErrorMsg,
   psqlErrorMsg
 } = require("./errors/index");
+const cors = require("cors");
+
+app.use(cors());
 
 app.use(express.json());
 

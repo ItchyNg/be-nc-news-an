@@ -72,6 +72,10 @@ exports.getCommentsByArticleId = (req, res, next) => {
 exports.getAllArticles = (req, res, next) => {
   const query = req.query; // includes author, topic, order, sort_by
 
+  //Prmise.all([x, y]).then(()=>{return....fetchAllAtic})
+  // check if author exists(author) // selectUserById
+  //check if topic exists(topics)
+
   fetchAllArticles(query)
     .then(result => {
       res.status(200).send({ articles: result });
