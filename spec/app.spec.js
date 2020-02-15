@@ -635,7 +635,7 @@ describe("/api", function() {
           .get("/api/comments/user/butter_bridge")
           .expect(200)
           .then(result => {
-            expect(result.body.comment).to.have.keys(
+            expect(result.body.comment[0]).to.have.keys(
               "comment_id",
               "author",
               "article_id",
@@ -674,7 +674,7 @@ describe("/api", function() {
           .send({ inc_votes: newVote }) //body of information sending
           .expect(200)
           .then(result => {
-            expect(result.body.comment[0]).to.have.keys(
+            expect(result.body.comment).to.have.keys(
               "comment_id",
               "author",
               "article_id",
