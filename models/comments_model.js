@@ -11,7 +11,7 @@ const selectCommentsByUserId = user_id => {
       if (!result.length) {
         return [];
       }
-      return result[0];
+      return result;
     });
 };
 // PATCH /comments/:comment_id
