@@ -1,5 +1,19 @@
 const connection = require("../db/connection");
 
+//GET /comments/:user_id
+const selectCommentsByUserId = user_id => {
+  return connection
+    .select("*")
+    .from("comments")
+    .where("author", user_id)
+    .returning("*")
+    .then(result => {
+      if (!result.length) {
+        return [];
+      }
+      return result[0];
+    });
+};
 // PATCH /comments/:comment_id
 const alterVoteReturnComment = (comment_id, newVote) => {
   return connection
@@ -24,4 +38,8 @@ const commentDeleted = comment_id => {
     .del();
 };
 
-module.exports = { alterVoteReturnComment, commentDeleted };
+module.exports = {
+  alterVoteReturnComment,
+  commentDeleted,
+  selectCommentsByUserId
+};

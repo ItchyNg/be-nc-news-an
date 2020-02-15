@@ -6,6 +6,9 @@ const {
   fetchAllArticles
 } = require("../models/articles_model");
 
+const selectUsernameById = require("../models/users_model");
+const { selectATopic } = require("../models/topics_model");
+
 // GET /articles/:article_id
 exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
@@ -71,6 +74,17 @@ exports.getCommentsByArticleId = (req, res, next) => {
 //GET /articles
 exports.getAllArticles = (req, res, next) => {
   const query = req.query; // includes author, topic, order, sort_by
+
+  if (query.author) {
+    selectUsernameById(query.author).catch(function(err) {
+      next(err);
+    });
+  }
+  if (query.topic) {
+    selectATopic(query.topic).catch(function(err) {
+      next(err);
+    });
+  }
 
   //Prmise.all([x, y]).then(()=>{return....fetchAllAtic})
   // check if author exists(author) // selectUserById

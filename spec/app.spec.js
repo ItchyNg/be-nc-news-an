@@ -233,15 +233,15 @@ describe("/api", function() {
           .get("/api/articles?author=notAValidAuthor")
           .expect(404)
           .then(result => {
-            expect(result.body.msg).to.equal("User Not Found");
+            expect(result.body.msg).to.equal("Not a valid user");
           });
       });
       it("GET 404: should response with a status 404 with msg 'Not Found' when request a topic that does no exist", () => {
         return request(app)
-          .get("/api/articles?topic=notAValidAuthor")
+          .get("/api/articles?topic=notAValidTopic")
           .expect(404)
           .then(result => {
-            expect(result.body.msg).to.equal("User Not Found");
+            expect(result.body.msg).to.equal("Topic Not Found");
           });
       });
       it("GET 400: when given an invalid sort_by column, should respond with 'Bad Request", () => {
@@ -629,6 +629,43 @@ describe("/api", function() {
     });
   });
   describe("/comments", () => {
+    describe("/:user_id", () => {
+      it("GET 200 >> /comments/:user_id >> should return status 200 when successful , in the correct format including the appropriate key columns", () => {
+        return request(app)
+          .get("/api/comments/user/butter_bridge")
+          .expect(200)
+          .then(result => {
+            expect(result.body.comment).to.have.keys(
+              "comment_id",
+              "author",
+              "article_id",
+              "votes",
+              "created_at",
+              "body"
+            );
+          });
+      });
+      it("GET 200 >> /comments/:user_id >> should return status 200 when successful , an empty array when requested comment for a user that exists but who has not made any comments on articles", () => {
+        return request(app)
+          .get("/api/comments/user/rogersop")
+          .expect(200)
+          .then(result => {
+            expect(result.body.comment).to.deep.equal([]);
+          });
+      });
+      describe("ERROR GET >> /comments/:user_id >>", () => {
+        it("GET 404, when trying to get comments for a user that does not exist, should return 404 'User Not Found'", () => {
+          return request(app)
+            .get("/api/comments/user/FAKEUSERNAME")
+            .expect(404)
+            .then(result => {
+              expect(result.body.msg).to.equal("Not a valid user");
+            });
+        });
+      });
+    });
+
+    //rogersop should return an empty array
     describe("/:comment_id", () => {
       it("PATCH 200 >> /comments/:comment_id >> will return status 200 when successful and have the required keys", () => {
         const newVote = 10;

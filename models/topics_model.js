@@ -9,4 +9,18 @@ const selectTopics = () => {
     });
 };
 
-module.exports = selectTopics;
+const selectATopic = topic => {
+  return connection
+    .select("*")
+    .from("topics")
+    .where("slug", topic)
+    .then(result => {
+      return result.length === 0
+        ? Promise.reject({
+            status: 404,
+            msg: "Topic Not Found"
+          })
+        : result[0];
+    });
+};
+module.exports = { selectTopics, selectATopic };
