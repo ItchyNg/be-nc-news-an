@@ -630,12 +630,12 @@ describe("/api", function() {
   });
   describe("/comments", () => {
     describe("/:user_id", () => {
-      it("GET 200 >> /comments/:user_id >> should return status 200 when successful , in the correct format including the appropriate key columns", () => {
+      it("GET 200 >> /comments/user/:user_id >> should return status 200 when successful , in the correct format including the appropriate key columns", () => {
         return request(app)
           .get("/api/comments/user/butter_bridge")
           .expect(200)
           .then(result => {
-            expect(result.body.comment[0]).to.have.keys(
+            expect(result.body.comments[0]).to.have.keys(
               "comment_id",
               "author",
               "article_id",
@@ -645,12 +645,57 @@ describe("/api", function() {
             );
           });
       });
-      it("GET 200 >> /comments/:user_id >> should return status 200 when successful , an empty array when requested comment for a user that exists but who has not made any comments on articles", () => {
+      it("GET 200 >> /comments/user/:user_id >> should return status 200 when successful , an empty array when requested comment for a user that exists but who has not made any comments on articles", () => {
         return request(app)
           .get("/api/comments/user/rogersop")
           .expect(200)
           .then(result => {
-            expect(result.body.comment).to.deep.equal([]);
+            expect(result.body.comments).to.deep.equal([]);
+          });
+      });
+      it("GET  >> /comments/user/:user_id >> the comments should be sorted by created_at and ordered in descending order by default", () => {
+        return request(app)
+          .get("/api/comments/user/butter_bridge")
+          .then(result => {
+            expect(result.body.comments).to.be.sortedBy("created_at", {
+              descending: true
+            });
+          });
+      });
+      it("GET  >> /comments/user/:user_id >> the comments should be sorted by created_at by default and ordered in ascending order by request", () => {
+        return request(app)
+          .get("/api/comments/user/butter_bridge?order=asc")
+          .then(result => {
+            expect(result.body.comments).to.be.sortedBy("created_at", {
+              descending: false
+            });
+          });
+      });
+      it("GET  >> /comments/user/:user_id >> the comments should be sorted by comment_id by request and ordered by descending order by default", () => {
+        return request(app)
+          .get("/api/comments/user/butter_bridge?sorted_by=comment_id")
+          .then(result => {
+            expect(result.body.comments).to.be.sortedBy("comment_id", {
+              descending: false
+            });
+          });
+      });
+      it("GET  >> /comments/user/:user_id >>  the comments should be sorted by comment_id by request and ordered by ascending order by reqeest", () => {
+        return request(app)
+          .get("/api/comments/user/butter_bridge?order=asc&&sort_by=comment_id")
+          .then(result => {
+            expect(result.body.comments).to.be.sortedBy("comment_id", {
+              descending: false
+            });
+          });
+      });
+      it("GET  >> /comments/user/:user_id >>  the comments should be sorted by votes by request and ordered by ascending order by reqeest", () => {
+        return request(app)
+          .get("/api/comments/user/butter_bridge?order=asc&&sort_by=votes")
+          .then(result => {
+            expect(result.body.comments).to.be.sortedBy("votes", {
+              descending: false
+            });
           });
       });
       describe("ERROR GET >> /comments/:user_id >>", () => {
@@ -662,10 +707,50 @@ describe("/api", function() {
               expect(result.body.msg).to.equal("Not a valid user");
             });
         });
+        it("GET 400: when given an invalid sort_by column, should respond with 'Bad Request", () => {
+          return request(app)
+            .get("/api/comments/user/butter_bridge?sort_by=notAValidColumn")
+            .expect(400)
+            .then(result => {
+              expect(result.body.msg).to.equal("Bad Request");
+            });
+        });
+        it("GET 400: when given an invalid order column, should respond with 'Bad Request'", () => {
+          return request(app)
+            .get("/api/comments/user/butter_bridge?order=notValidOrder")
+            .expect(400)
+            .then(result => {
+              expect(result.body.msg).to.equal("Bad Request");
+            });
+        });
+        it("POST /* :405 when other methods are attempted'", () => {
+          return request(app)
+            .put("/api/comments/user/butter_bridge")
+            .send({ hello: "hello" })
+            .expect(405)
+            .then(result => {
+              expect(result.body.msg).to.equal("Method Not Found");
+            });
+        });
+        it("PATCH /* :405 when other methods are attempted'", () => {
+          return request(app)
+            .patch("/api/comments/user/butter_bridge")
+            .send({ hello: "hello" })
+            .expect(405)
+            .then(result => {
+              expect(result.body.msg).to.equal("Method Not Found");
+            });
+        });
+        it("DELETE /* :405 when other methods are attempted'", () => {
+          return request(app)
+            .delete("/api/comments/user/butter_bridge")
+            .expect(405)
+            .then(result => {
+              expect(result.body.msg).to.equal("Method Not Found");
+            });
+        });
       });
     });
-
-    //rogersop should return an empty array
     describe("/:comment_id", () => {
       it("PATCH 200 >> /comments/:comment_id >> will return status 200 when successful and have the required keys", () => {
         const newVote = 10;

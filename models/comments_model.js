@@ -1,12 +1,13 @@
 const connection = require("../db/connection");
 
 //GET /comments/:user_id
-const selectCommentsByUserId = user_id => {
+const selectCommentsByUserId = (user_id, order, sort_by) => {
   return connection
     .select("*")
     .from("comments")
     .where("author", user_id)
     .returning("*")
+    .orderBy(sort_by || "created_at", order || "desc")
     .then(result => {
       if (!result.length) {
         return [];
@@ -14,6 +15,7 @@ const selectCommentsByUserId = user_id => {
       return result;
     });
 };
+
 // PATCH /comments/:comment_id
 const alterVoteReturnComment = (comment_id, newVote) => {
   return connection

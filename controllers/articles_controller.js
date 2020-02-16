@@ -53,14 +53,6 @@ exports.getCommentsByArticleId = (req, res, next) => {
   const article_id = req.params.article_id;
   const order = req.query.order;
   const sort_by = req.query.sort_by;
-  // const allQuery = req.query;
-  // if (allQuery) {
-  //   for (let keys in allQuery) {
-  //     if (keys !== order || keys !== sort_by) {
-  //
-  //     }
-  //   }
-  // }
 
   selectCommentsByArticleId(order, article_id, sort_by)
     .then(result => {
