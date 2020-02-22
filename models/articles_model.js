@@ -19,12 +19,6 @@ const selectArticleById = article_id => {
 
 // PATCH /articles/:article_id
 const changeArticleVotes = (article_id, patchVote) => {
-  // return selectArticleById(article_id).increment("votes", patchVote) });
-  // return selectArticleById(article_id).then(result => {
-  //   result.votes += patchVote;
-  //   return result;
-  // });
-
   return connection
     .select("*")
     .from("articles")
@@ -101,40 +95,36 @@ const selectCommentsByArticleId = (order, article_id, sort_by) => {
 
 //GET /articles
 const fetchAllArticles = query => {
-  return (
-    connection
-      .select(
-        "articles.title",
-        "articles.author",
-        "articles.article_id",
-        "articles.topic",
-        "articles.created_at",
-        "articles.votes"
-      )
-      .from("articles")
-      .count({ comment_count: "comment_id" })
-      .leftJoin("comments", "articles.article_id", "comments.article_id")
-      .groupBy("articles.article_id")
-      //to add modify if the author and topic are present to put a where into the promise object chain //'lurker' //"icellusedkars"
-      .orderBy(query.sort_by || "created_at", query.order || "desc")
-      .modify(filterByQuery => {
-        if (query.author) {
-          filterByQuery.where("articles.author", query.author);
+  return connection
+    .select(
+      "articles.title",
+      "articles.author",
+      "articles.article_id",
+      "articles.topic",
+      "articles.created_at",
+      "articles.votes"
+    )
+    .from("articles")
+    .count({ comment_count: "comment_id" })
+    .leftJoin("comments", "articles.article_id", "comments.article_id")
+    .groupBy("articles.article_id")
+    .orderBy(query.sort_by || "created_at", query.order || "desc")
+    .modify(filterByQuery => {
+      if (query.author) {
+        filterByQuery.where("articles.author", query.author);
+      }
+      if (query.topic) {
+        filterByQuery.where("articles.topic", query.topic);
+      }
+    })
+    .then(result => {
+      if (query.order) {
+        if (query.order !== "desc" && query.order !== "asc") {
+          return Promise.reject({ status: 400, msg: "Bad Request" });
         }
-        if (query.topic) {
-          filterByQuery.where("articles.topic", query.topic);
-        }
-      })
-      .then(result => {
-        if (query.order) {
-          //error handling for order and sort_by
-          if (query.order !== "desc" && query.order !== "asc") {
-            return Promise.reject({ status: 400, msg: "Bad Request" });
-          }
-        }
-        return result;
-      })
-  );
+      }
+      return result;
+    });
 };
 
 module.exports = {
@@ -144,68 +134,3 @@ module.exports = {
   selectCommentsByArticleId,
   fetchAllArticles
 };
-
-// return (
-//   connection
-//     .select(
-//       "articles.title",
-//       "articles.author",
-//       "articles.article_id",
-//       "articles.topic",
-//       "articles.created_at",
-//       "articles.votes"
-//     )
-//     .from("articles")
-//     .count({ comment_count: "comment_id" })
-//     .leftJoin("comments", "articles.article_id", "comments.article_id")
-//     .groupBy("articles.article_id")
-//     //to add modify if the author and topic are present to put a where into the promise object chain //'lurker' //"icellusedkars"
-//     .orderBy(query.sort_by || "created_at", query.order || "desc")
-//     .modify(filterByQuery => {
-//       if (query.author) {
-//         filterByQuery.where("articles.author", query.author);
-//       }
-//       if (query.topic) {
-//         filterByQuery.where("articles.topic", query.topic);
-//       }
-//     })
-//     .then(result => {
-//       if (query.order) {
-//         //error handling for order and sort_by
-//         if (query.order !== "desc" && query.order !== "asc") {
-//           return Promise.reject({ status: 400, msg: "Bad Request" });
-//         }
-//       }
-//       if (!result.length && query.author) {
-//         //andling for empty array or result with nothing inside
-//         return connection
-//           .select("*")
-//           .from("users")
-//           .returning("*")
-//           .where("users.username", query.author); //query.author
-//       } else if (!result.length && query.topic) {
-//         return connection
-//           .select("*")
-//           .from("topics")
-//           .returning("*")
-//           .where("topics.slug", query.topic); //query.topic
-//       } else {
-//         return result;
-//       }
-//     })
-//     .then(usersRows => {
-//       if (usersRows.length) {
-//         return usersRows[0].author //if the req column exists....etc...
-//           ? usersRows
-//           : usersRows[0].topic
-//             ? usersRows
-//             : []; //if not empty array, dont want to return a table of other stuff
-//       } else {
-//         return Promise.reject({
-//           //topic or author doesnt exist -> reject
-//           status: 404,
-//           msg: "User Not Found"
-//         });
-//       }
-//     })
-// );

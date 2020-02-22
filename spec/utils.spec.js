@@ -14,8 +14,6 @@ describe("formatDates", () => {
 
     const expectedResult = [{ created_at: new Date(1479818163389) }];
 
-    //new Date takes an arguement and set to convert it into a Javascript date format
-
     expect(formatDates(list)).to.deep.equal(expectedResult);
   });
 
@@ -162,21 +160,21 @@ describe.only("formatComments", () => {
     const comments = [
       {
         body: "body in here",
-        belongs_to: "Titletest", //to be renamed to an article_id key with values to be the article_id integer
-        created_by: "itch", //to be renamed to an author key
+        belongs_to: "Titletest",
+        created_by: "itch",
         votes: 10,
-        created_at: 1496231984183 //convert this to JS date object
+        created_at: 1496231984183
       }
     ];
-    const articleRef = { Titletest: 1 }; //Key (Title), Value (article_id)
+    const articleRef = { Titletest: 1 };
 
     const expected = [
       {
         body: "body in here",
-        article_id: 1, //renamed to an article_id key with values to be the article_id integer
-        author: "itch", //renamed to an author key
+        article_id: 1,
+        author: "itch",
         votes: 10,
-        created_at: new Date(1496231984183) //converted this to JS date object
+        created_at: new Date(1496231984183)
       }
     ];
 
@@ -267,7 +265,6 @@ describe.only("formatComments", () => {
       }
     ];
     const articleRef2 = { Titletest: 1, TitletestTwo: 2 };
-    ///////////////////////////////////////////////////////////////////
     const commentsCopy2 = [
       {
         body: "body in here",

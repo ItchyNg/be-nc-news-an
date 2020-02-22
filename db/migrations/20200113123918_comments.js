@@ -4,11 +4,11 @@ exports.up = function(knex) {
     commentsTable
       .string("author")
       .references("users.username")
-      .notNullable(); //should reference users primary key (username)
+      .notNullable();
     commentsTable
       .integer("article_id")
       .references("articles.article_id")
-      .notNullable() //should reference articles primary key
+      .notNullable()
       .onDelete("CASCADE"); // Deletes all comments when the article they are related to is deleted
     commentsTable
       .integer("votes")
@@ -17,7 +17,7 @@ exports.up = function(knex) {
     commentsTable
       .timestamp("created_at")
       .defaultTo(knex.fn.now())
-      .notNullable(); //to defaults to the current timestamp
+      .notNullable();
     commentsTable.text("body");
   });
 };

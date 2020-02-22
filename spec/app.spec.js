@@ -12,14 +12,6 @@ describe("/api", function() {
   this.timeout(15000);
   beforeEach(() => connection.seed.run());
   after(() => connection.destroy());
-  // it("200: returns status 200 when successful and an object with api descriptions", () => {
-  //   return request(app)
-  //     .get("/api")
-  //     .expect(200)
-  //     .then(result => {
-  //       expect(result).to.be.an("object");
-  //     });
-  // });
   it("404: Invalid route, we are testing for routes that are not valid", () => {
     return request(app)
       .get("/api/invalidRoute")
@@ -197,7 +189,7 @@ describe("/api", function() {
           .get("/api/articles?author=icellusedkars&sort_by=article_id")
           .expect(200)
           .then(result => {
-            expect(result.body.articles).to.be.descendingBy("article_id"); //DOES NOT LIKE BEING SORTED BY DATE???????????// its in a string???
+            expect(result.body.articles).to.be.descendingBy("article_id");
             expect(result.body.articles[0].author).to.equal("icellusedkars");
           });
       });
@@ -245,7 +237,6 @@ describe("/api", function() {
           });
       });
       it("GET 400: when given an invalid sort_by column, should respond with 'Bad Request", () => {
-        //PSQL error sorts it
         return request(app)
           .get("/api/articles?sort_by=notAValidColumn")
           .expect(400)
@@ -254,7 +245,6 @@ describe("/api", function() {
           });
       });
       it("GET 400: when given an invalid order request, should respond with 'Bad Request'", () => {
-        //custom error
         return request(app)
           .get("/api/articles?order=notValidOrder")
           .expect(400)
@@ -318,7 +308,7 @@ describe("/api", function() {
         return request(app)
           .get("/api/articles/1")
           .then(result => {
-            expect(result.body.article.comment_count).to.equal("13"); // originally set it to be a number but feedback test wanted a string...
+            expect(result.body.article.comment_count).to.equal("13");
             expect(result.body.article.article_id).to.equal(1);
           });
       });

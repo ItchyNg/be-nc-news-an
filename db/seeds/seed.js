@@ -10,7 +10,7 @@ const { formatDates, formatComments, makeRefObj } = require("../utils/utils");
 exports.seed = function(knex) {
   return knex.migrate
     .rollback()
-    .then(() => knex.migrate.latest()) //rollback and latest to reset the database each time it seeded
+    .then(() => knex.migrate.latest())
     .then(() => {
       const topicsInsertions = knex("topics").insert(topicData);
       const usersInsertions = knex("users").insert(userData);

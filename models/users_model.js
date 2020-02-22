@@ -6,7 +6,7 @@ const selectUsernameById = username => {
     .from("users")
     .where("username", username)
     .then(result => {
-      return result.length === 0 //if the result comes back with nothing then force it to reject and send error, if not return the results
+      return result.length === 0
         ? Promise.reject({
             status: 404,
             msg: "Not a valid user"

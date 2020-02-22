@@ -1,13 +1,11 @@
 exports.up = function(knex) {
-  //we want to create the topics table here
-
   return knex.schema.createTable("topics", topicsTable => {
     topicsTable
       .string("slug")
       .unique()
       .primary()
-      .notNullable(); //creating the column names here, slug should be unique enough to act as the primary key
-    topicsTable.string("description").notNullable(); //creating the column names here
+      .notNullable();
+    topicsTable.string("description").notNullable();
   });
 };
 

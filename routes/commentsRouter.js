@@ -17,10 +17,4 @@ commentsRouter
   .get(getCommentsByUserId)
   .all(send405Error);
 
-// commentsRouter.patch("/:comment_id", amendVoteByCommentId);
-
-// commentsRouter.delete("/:comment_id", deleteCommentById);
-
-// commentsRouter.all("/*", send405Error);
-
 module.exports = commentsRouter;

@@ -4,7 +4,7 @@ exports.up = function(knex) {
       .string("username")
       .primary()
       .unique()
-      .notNullable(); //creating column username to be unique
+      .notNullable();
     usersTable.string("name").notNullable();
     usersTable.string("avatar_url").notNullable();
   });

@@ -32,8 +32,6 @@ exports.getCommentsByUserId = (req, res, next) => {
 exports.amendVoteByCommentId = (req, res, next) => {
   const { comment_id } = req.params;
   const newVote = req.body.inc_votes;
-  // typeof req.body.inc_votes == "number" ? req.body.inc_votes : 0; // this would ignore the invalid inc_vote rather than erroring out
-
   alterVoteReturnComment(comment_id, newVote)
     .then(result => {
       res.status(200).send({ comment: result });
